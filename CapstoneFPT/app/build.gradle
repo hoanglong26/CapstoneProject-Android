@@ -1,0 +1,79 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    defaultConfig {
+        applicationId "com.example.hoanglong.capstonefpt"
+        minSdkVersion 21
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+configurations.all {
+    resolutionStrategy {
+        force 'com.android.support:support-annotations:25.3.1'
+    }
+}
+dependencies {
+    compile 'com.google.android.gms:play-services-auth:11.8.0'
+//    apply plugin: 'com.google.gms.google-services'
+
+    compile 'com.google.firebase:firebase-core:11.8.0'
+    compile 'com.google.firebase:firebase-messaging:11.8.0'
+    compile 'com.google.firebase:firebase-auth:11.8.0'
+
+    compile('com.mikepenz:materialdrawer:5.6.0@aar') {
+        transitive = true
+    }
+    compile 'org.greenrobot:eventbus:3.0.0'
+
+    compile('com.mikepenz:fastadapter:2.6.2@aar') {
+        transitive = true
+    }
+    compile 'com.mikepenz:fastadapter-commons:2.6.0@aar'
+    compile 'com.mikepenz:fastadapter-extensions:2.6.0@aar'
+    compile 'com.mikepenz:materialize:1.0.2@aar'
+
+    compile 'com.android.support:design:25.4.0'
+
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+
+    compile 'com.jakewharton:butterknife:8.4.0'
+    annotationProcessor  'com.jakewharton:butterknife-compiler:8.4.0'
+
+    compile 'com.android.support:support-v4:25.4.0'
+
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+
+    compile 'com.squareup.okhttp3:okhttp:3.7.0'
+    compile 'com.squareup.okio:okio:1.12.0'
+
+    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+    compile 'com.google.code.gson:gson:2.8.0'
+
+    compile 'io.reactivex:rxandroid:1.2.1'
+
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.7'
+
+    compile 'com.google.dagger:dagger:2.7'
+    provided 'javax.annotation:jsr250-api:1.0'
+
+    compile 'com.j256.ormlite:ormlite-android:5.0'
+    compile 'com.j256.ormlite:ormlite-core:5.0'
+    compile 'com.j256.ormlite:ormlite-jdbc:5.0'
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:25.4.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+}
