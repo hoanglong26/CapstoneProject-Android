@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp"
+    android:padding="4dp">
+
+    <LinearLayout
+        android:id="@+id/timetable_time_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/timetable_start_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="4dp"
+            android:textSize="16dip"
+            android:text="8:00"/>
+
+        <TextView
+            android:id="@+id/timetable_end_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/timetable_start_time"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="4dp"
+            android:textSize="16dip"
+            android:text="10:00"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="1px"
+        android:layout_height="match_parent"
+        android:id="@+id/separator"
+        android:layout_toEndOf="@+id/timetable_time_layout"
+        android:background="@color/md_grey_800"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_toEndOf="@+id/separator">
+
+        <TextView
+            android:id="@+id/timetable_subject_area"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:text="1AMPR"
+            android:textSize="18dip"
+            android:layout_marginTop="4dp"
+            android:layout_marginLeft="20dp"
+            android:textColor="@color/md_dark_background"/>
+
+        <TextView
+            android:id="@+id/timetable_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/timetable_end_time"
+            android:layout_below="@+id/timetable_subject_area"
+            android:text="Room 06-01, Block 7"
+            android:textSize="16dip"
+            android:layout_marginTop="4dp"
+            android:layout_marginLeft="20dp" />
+
+    </LinearLayout>
+
+</RelativeLayout>

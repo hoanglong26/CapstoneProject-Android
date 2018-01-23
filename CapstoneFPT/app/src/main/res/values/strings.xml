@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">CapstoneFPT</string>
+    <string name="app_name">FPT University</string>
+    <string name="schedule">Schedule</string>
+    <string name="account">Account</string>
+    <string name="no_data">No data</string>
+
+    <string name="error_message_login_failed">Network connection unavailable.\nPlease check that you have a data connection and try again.</string>
+    <string name="error_title_login_failed">Login Failed</string>
+
 </resources>
