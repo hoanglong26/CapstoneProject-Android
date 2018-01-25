@@ -1,7 +1,12 @@
 package com.example.hoanglong.capstonefpt.api;
 
+import com.example.hoanglong.capstonefpt.POJOs.APIresponses.EmployeeInfo;
+import com.google.gson.JsonObject;
+
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 /**
@@ -18,8 +23,8 @@ public interface ServerAPI {
 //    @GET("api/BusStops")
 //    Call<List<BusStopDB>> getAllBusStop();
 //
-//    @POST("api/Users")
-//    Call<UserAccount> loginViaEmail(@Query("email") String email);
+    @POST("getEmployeeInfo")
+    Call<EmployeeInfo> getEmployeeInfo(@Body JsonObject email);
 //
 //    @POST("api/Users")
 //    Call<UserAccount> loginViaEmail2(@Body JsonObject email);

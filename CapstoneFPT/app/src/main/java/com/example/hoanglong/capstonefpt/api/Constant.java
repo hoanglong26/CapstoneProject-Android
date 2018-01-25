@@ -5,6 +5,8 @@ package com.example.hoanglong.capstonefpt.api;
  */
 
 public class Constant {
-    public static final String MAP_URL = "https://maps.googleapis.com/maps/";
+    public static final String SERVER_URL = "http://192.168.1.58:8780/";
+//    public static final String SERVER_URL = "http://d469b079.ngrok.io/";
+
 //    public static final String WEB_URL = "http://9791174a.ngrok.io/";
 }

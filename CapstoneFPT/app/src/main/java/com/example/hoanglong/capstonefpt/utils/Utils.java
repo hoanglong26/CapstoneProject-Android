@@ -1,6 +1,7 @@
 package com.example.hoanglong.capstonefpt.utils;
 
 import android.app.Activity;
+import android.app.Application;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -27,9 +28,9 @@ import java.util.List;
  * Created by Sonata on 10/26/2016.
  */
 
-public class Preferences {
+public class Utils {
 
-    // tags for Shared Preferences to store and retrieve some piece of data from local
+    // tags for Shared Utils to store and retrieve some piece of data from local
     public static final String SharedPreferencesTag = "FPT_UNiversity";
     public static final int SharedPreferences_ModeTag = Context.MODE_PRIVATE;
 
@@ -132,12 +133,12 @@ public class Preferences {
         return "02:00:00:00:00:00";
     }
 
-    public static void setUserInfo(UserInfo userInfo, Activity activity) {
-        SharedPreferences pref = activity.getSharedPreferences(SharedPreferencesTag, SharedPreferences_ModeTag);
+    public static void setUserInfo(UserInfo userInfo, Application app, boolean isLecture) {
+        SharedPreferences pref = app.getSharedPreferences(SharedPreferencesTag, SharedPreferences_ModeTag);
         SharedPreferences.Editor editor = pref.edit();
 
         editor.putString("isLogin", "true");
-        editor.putString("isLecture", "true");
+        editor.putBoolean("isLecture", isLecture);
         editor.putString("user_id", userInfo.getId()+"");
         editor.putString("user_code", userInfo.getCode());
         editor.putString("user_name", userInfo.getName());
@@ -146,16 +147,12 @@ public class Preferences {
         editor.apply();
     }
 
-    public static void clearUserInfo(Activity activity) {
-        SharedPreferences pref = activity.getSharedPreferences(SharedPreferencesTag, Context.MODE_PRIVATE);
-        String auCode = pref.getString("authorizationCode", null);
-
+    public static void clearUserInfo(Application app) {
+        SharedPreferences pref = app.getSharedPreferences(SharedPreferencesTag, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.clear();
         editor.apply();
 
-        Intent intent = new Intent(activity, LoginActivity.class);
-        activity.startActivity(intent);
     }
 
     public static void notify(Context context, String title, String content) {
@@ -255,6 +252,22 @@ public class Preferences {
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(id, builder.build());
     }
+
+//    public static void showProgressDialog(ProgressDialog mProgressDialog, Activity activity) {
+//        if (mProgressDialog == null) {
+//            mProgressDialog = new ProgressDialog(activity);
+//            mProgressDialog.setMessage("Loading");
+//            mProgressDialog.setIndeterminate(true);
+//        }
+//        mProgressDialog.show();
+//    }
+//
+//
+//    public static void hideProgressDialog(ProgressDialog mProgressDialog) {
+//        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+//            mProgressDialog.dismiss();
+//        }
+//    }
 
     public static boolean checkInternetOn(Activity activity) {
         ConnectivityManager conMgr = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);

@@ -10,6 +10,8 @@ public class UserInfo {
     private String name;
     private String role;
 
+    public UserInfo() {
+    }
 
     public UserInfo(int id, String code, String name, String role) {
         this.id = id;

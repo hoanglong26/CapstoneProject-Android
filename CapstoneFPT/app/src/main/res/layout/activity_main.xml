@@ -21,7 +21,6 @@
         android:layout_above="@id/navigation"
         android:background="@color/md_white_1000">
 
-
         <android.support.design.widget.AppBarLayout
             android:id="@+id/appBar"
             android:layout_width="match_parent"
@@ -62,6 +61,74 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+
+        <com.example.hoanglong.capstonefpt.components.Fab
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginEnd="20dp"
+            android:layout_gravity="end|bottom"
+            android:clickable="true"
+            android:focusable="true"
+            android:elevation="6dp"
+            android:src="@drawable/fpt"
+            android:theme="@style/FloatingActionButton2"
+            app:elevation="6dp"
+            app:fabSize="normal"
+            app:rippleColor="#50ffffff" />
+
+        <!-- Overlay that dims the screen -->
+        <com.gordonwong.materialsheetfab.DimOverlayFrameLayout
+            android:id="@+id/overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- Circular reveal container for the sheet -->
+        <io.codetail.widget.RevealLinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="end|bottom"
+            android:orientation="vertical">
+
+            <!-- Sheet that contains your items -->
+            <android.support.v7.widget.CardView
+                android:id="@+id/fab_sheet"
+                style="@style/Widget.MaterialSheetFab.Sheet">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Change to today view -->
+                    <TextView
+                        android:id="@+id/tvToday"
+                        style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
+                        android:drawableStart="@drawable/ic_today"
+                        android:text="Today Schedule" />
+
+                    <!-- Change to week view -->
+                    <TextView
+                        android:id="@+id/tvWeek"
+                        style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
+                        android:drawableStart="@drawable/ic_view_week"
+                        android:text="Week Schedule" />
+
+
+                    <!-- Change to all view -->
+                    <TextView
+                        android:id="@+id/tvAll"
+                        style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
+                        android:drawableStart="@drawable/ic_view_all"
+                        android:text="All Schedule" />
+                </LinearLayout>
+
+
+
+            </android.support.v7.widget.CardView>
+        </io.codetail.widget.RevealLinearLayout>
 
     </android.support.design.widget.CoordinatorLayout>
 
