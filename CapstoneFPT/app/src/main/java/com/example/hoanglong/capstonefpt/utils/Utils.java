@@ -13,12 +13,21 @@ import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
 import com.example.hoanglong.capstonefpt.LoginActivity;
+import com.example.hoanglong.capstonefpt.MainActivity;
+import com.example.hoanglong.capstonefpt.POJOs.APIresponses.ScheduleResponse;
+import com.example.hoanglong.capstonefpt.POJOs.EmailInfo;
 import com.example.hoanglong.capstonefpt.POJOs.UserInfo;
 import com.example.hoanglong.capstonefpt.R;
+import com.example.hoanglong.capstonefpt.fragments.ScheduleFragment;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.Gson;
 
 import java.net.NetworkInterface;
 import java.util.Collections;
@@ -33,67 +42,6 @@ public class Utils {
     // tags for Shared Utils to store and retrieve some piece of data from local
     public static final String SharedPreferencesTag = "FPT_UNiversity";
     public static final int SharedPreferences_ModeTag = Context.MODE_PRIVATE;
-
-
-    public static ProgressDialog loading;
-    public static boolean isShownLoading = false;
-
-    public static void showLoading(final Activity activity, final String title, final String message) {
-        try {
-            if (!isShownLoading) {
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loading = ProgressDialog.show(activity, title, message, false, false);
-                        isShownLoading = true;
-                    }
-                });
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void dismissLoading() {
-        try {
-            if (isShownLoading) {
-
-                loading.dismiss();
-                isShownLoading = false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-//    public static void showBadRequestNotificationDialog(final Activity activity, int badRequestCode, int title) {
-//        int message;
-//
-//        switch (badRequestCode) {
-//            case CODE_INCORRECT_USERNAME:
-//
-//                break;
-//            case CODE_INCORRECT_PASSWORD:
-//
-//                break;
-//            case CODE_INCORRECT_DEVICE:
-//
-//                break;
-//            case CODE_UNVERIFIED_EMAIL:
-//
-//                break;
-//            case CODE_UNVERIFIED_DEVICE:
-//
-//                break;
-//            case CODE_UNVERIFIED_EMAIL_DEVICE:
-//
-//                break;
-//            case CODE_INVALID_ACCOUNT:
-//
-//                break;
-//        }
-//    }
 
     public static void showNotificationDialog(final Activity activity, String title, String message) {
         new android.app.AlertDialog.Builder(activity)
@@ -253,21 +201,6 @@ public class Utils {
         notificationManager.notify(id, builder.build());
     }
 
-//    public static void showProgressDialog(ProgressDialog mProgressDialog, Activity activity) {
-//        if (mProgressDialog == null) {
-//            mProgressDialog = new ProgressDialog(activity);
-//            mProgressDialog.setMessage("Loading");
-//            mProgressDialog.setIndeterminate(true);
-//        }
-//        mProgressDialog.show();
-//    }
-//
-//
-//    public static void hideProgressDialog(ProgressDialog mProgressDialog) {
-//        if (mProgressDialog != null && mProgressDialog.isShowing()) {
-//            mProgressDialog.dismiss();
-//        }
-//    }
 
     public static boolean checkInternetOn(Activity activity) {
         ConnectivityManager conMgr = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -278,6 +211,40 @@ public class Utils {
         } else {
             return true;
         }
+    }
 
+    static int x = 999;
+    public static void sendNotificationForFireBase(Context context, String msg, String newScheduleJson) {
+
+        SharedPreferences sharedPref = context.getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
+        String userEmailJson = sharedPref.getString("user_email_account", "");
+
+        if (!userEmailJson.equals("")) {
+            NotificationCompat.Builder builder =
+                    new NotificationCompat.Builder(context)
+                            .setContentTitle("FPT University")
+                            .setContentText(msg)
+                            .setSmallIcon(R.drawable.logo)
+                            .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
+                                    R.drawable.logo))
+                            .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                            .setStyle(new NotificationCompat.BigTextStyle()
+                                    .bigText(msg))
+                            .setAutoCancel(true);
+
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+            Intent intent = new Intent(context, MainActivity.class);
+            intent.putExtra("newSchedule", newScheduleJson);
+            stackBuilder.addNextIntent(intent);
+            PendingIntent resultPendingIntent =
+                    stackBuilder.getPendingIntent(
+                            0,
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                    );
+            builder.setContentIntent(resultPendingIntent);
+            NotificationManager notificationManager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(x++, builder.build());
+        }
     }
 }

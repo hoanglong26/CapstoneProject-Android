@@ -4,6 +4,9 @@ import android.content.Context;
 import android.database.SQLException;
 
 import com.example.hoanglong.capstonefpt.POJOs.Schedule;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.Where;
 
 import java.util.List;
 
@@ -16,7 +19,7 @@ public class DatabaseManager {
     static private DatabaseManager instance;
 
     static public void init(Context ctx) {
-        if (null==instance) {
+        if (null == instance) {
             instance = new DatabaseManager(ctx);
         }
     }
@@ -26,6 +29,7 @@ public class DatabaseManager {
     }
 
     private DatabaseHelper helper;
+
     private DatabaseManager(Context ctx) {
         helper = new DatabaseHelper(ctx);
     }
@@ -38,13 +42,11 @@ public class DatabaseManager {
         List<Schedule> schedules = null;
         try {
             schedules = getHelper().getScheduleDao().queryForAll();
-        }
-         catch (java.sql.SQLException e) {
+        } catch (java.sql.SQLException e) {
             e.printStackTrace();
         }
         return schedules;
     }
-
 
     public void addSchedule(Schedule l) {
         try {
@@ -56,12 +58,68 @@ public class DatabaseManager {
         }
     }
 
+    public void addAllSchedule(List<Schedule> l) {
+        try {
+            getHelper().getScheduleDao().create(l);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void createOrUpdateSchedule(Schedule s) {
+        try {
+            getHelper().getScheduleDao().createOrUpdate(s);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void changeIsNewToFalse(int id) {
+        try {
+            Schedule updateSchedule = getHelper().getScheduleDao().queryForId(id);
+            updateSchedule.setIsNew("false");
+            getHelper().getScheduleDao().update(updateSchedule);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public void deleteSchedule(Schedule subject) {
         try {
             getHelper().getScheduleDao().delete(subject);
         } catch (java.sql.SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean deleteScheduleByDateAndSlot(Schedule subject) {
+        try {
+
+            QueryBuilder<Schedule, Integer> builder = getHelper().getScheduleDao().queryBuilder();
+            Where where = builder.where();
+            where.eq("date", subject.getDate());
+            // and
+            where.and();
+            where.eq("slot", subject.getSlot());
+            PreparedQuery<Schedule> preparedQuery = builder.prepare();
+            List<Schedule> aList = getHelper().getScheduleDao().query(preparedQuery);
+
+            if (aList.size() > 0) {
+                getHelper().getScheduleDao().delete(aList.get(0));
+                return true;
+            }
+
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public void deleteAllSchedules() {
@@ -71,66 +129,6 @@ public class DatabaseManager {
             e.printStackTrace();
         }
     }
-
-
-//    public List<Favorite> getAllFavorites() {
-//        List<Favorite> locations = null;
-//        try {
-//            locations = getHelper().getFavoriteDao().queryForAll();
-//        }
-//        catch (java.sql.SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return locations;
-//    }
-//
-//
-//    public void addFavorite(Favorite l) {
-//        try {
-//            getHelper().getFavoriteDao().create(l);
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        } catch (java.sql.SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    public void deleteFavorite(Favorite subject) {
-//        try {
-//            getHelper().getFavoriteDao().delete(subject);
-//        } catch (java.sql.SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-//    public List<Subject> getSubjectWithSubjectArea(String wishListId) {
-//        List<Subject> wishList = null;
-//        try {
-//            wishList = getHelper().getSubjectDao().queryForEq("subject_area", wishListId);
-//        } catch (java.sql.SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return wishList;
-//    }
-
-//    public SubjectDateTime newSubjectDateTimeItem() {
-//        SubjectDateTime subjectDateTimeItem = new SubjectDateTime();
-//        try {
-//            getHelper().getSubjectDateTimeDao().create(subjectDateTimeItem);
-//        } catch (java.sql.SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return subjectDateTimeItem;
-//    }
-//
-//    public void updateSubjectDateTimeItem(SubjectDateTime item) {
-//        try {
-//            getHelper().getSubjectDateTimeDao().update(item);
-//        } catch (java.sql.SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
 
 
 }

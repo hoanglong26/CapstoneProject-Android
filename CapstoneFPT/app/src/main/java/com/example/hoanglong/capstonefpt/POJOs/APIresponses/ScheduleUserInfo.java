@@ -8,23 +8,23 @@ import java.util.List;
  * Created by hoanglong on 23-Jan-18.
  */
 
-public class EmployeeInfo {
-    @SerializedName("employee")
-    private Employee emp;
+public class ScheduleUserInfo {
+    @SerializedName("user")
+    private UserResponse emp;
 
     @SerializedName("scheduleList")
     private List<ScheduleResponse> scheduleList;
 
-    public EmployeeInfo(Employee emp, List<ScheduleResponse> scheduleList) {
+    public ScheduleUserInfo(UserResponse emp, List<ScheduleResponse> scheduleList) {
         this.emp = emp;
         this.scheduleList = scheduleList;
     }
 
-    public Employee getEmp() {
+    public UserResponse getEmp() {
         return emp;
     }
 
-    public void setEmp(Employee emp) {
+    public void setEmp(UserResponse emp) {
         this.emp = emp;
     }
 

@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
  * Created by hoanglong on 23-Jan-18.
  */
 
-public class Employee {
+public class UserResponse {
     @SerializedName("id")
     private int id;
 
@@ -31,7 +31,7 @@ public class Employee {
     @SerializedName("phone")
     private String phone;
 
-    public Employee(int id, String code, String fullName, String position, String emailEdu, String emailFe, boolean gender, String phone) {
+    public UserResponse(int id, String code, String fullName, String position, String emailEdu, String emailFe, boolean gender, String phone) {
         this.id = id;
         this.code = code;
         this.fullName = fullName;

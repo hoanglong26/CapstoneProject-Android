@@ -8,6 +8,7 @@ import android.support.multidex.MultiDexApplication;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.FirebaseApp;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
@@ -23,6 +24,7 @@ public class App extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        FirebaseApp.initializeApp(this);
 
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
             @Override

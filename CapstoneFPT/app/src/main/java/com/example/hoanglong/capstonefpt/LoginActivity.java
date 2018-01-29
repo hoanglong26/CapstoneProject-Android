@@ -14,7 +14,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.hoanglong.capstonefpt.POJOs.APIresponses.EmployeeInfo;
+import com.example.hoanglong.capstonefpt.POJOs.APIresponses.ScheduleUserInfo;
 import com.example.hoanglong.capstonefpt.POJOs.APIresponses.ScheduleResponse;
 import com.example.hoanglong.capstonefpt.POJOs.EmailInfo;
 import com.example.hoanglong.capstonefpt.POJOs.Schedule;
@@ -45,7 +45,8 @@ import retrofit2.Response;
 public class LoginActivity extends FragmentActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
     private static final String TAG = "SignInActivity";
-    private static final int RC_SIGN_IN = 9001;
+    private static final int LECTURE_SIGN_IN = 9001;
+    private static final int STUDENT_SIGN_IN = 9002;
 
     private GoogleApiClient mGoogleApiClient;
     private ProgressDialog mProgressDialog;
@@ -149,7 +150,15 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
             opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
                 @Override
                 public void onResult(GoogleSignInResult googleSignInResult) {
-                    handleSignInResult(googleSignInResult);
+                    SharedPreferences sharedPref = getApplication().getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
+                    boolean isLecture = sharedPref.getBoolean("isLecture", false);
+
+                    if(isLecture){
+                        handleSignInResult(googleSignInResult,"lecture");
+                    }else{
+                        handleSignInResult(googleSignInResult,"student");
+
+                    }
                 }
             });
         }
@@ -167,94 +176,117 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
         super.onActivityResult(requestCode, resultCode, data);
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == LECTURE_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            handleSignInResult(result);
+            handleSignInResult(result, "lecture");
+        }
+
+        if (requestCode == STUDENT_SIGN_IN) {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            handleSignInResult(result, "student");
         }
     }
     // [END onActivityResult]
 
     // [START handleSignInResult]
-    private void handleSignInResult(GoogleSignInResult result) {
+    private void handleSignInResult(GoogleSignInResult result, String type) {
         if (result.isSuccess() && mGoogleApiClient.isConnected()) {
             final GoogleSignInAccount acct = result.getSignInAccount();
 
-            //TODO edit email
             if (acct.getEmail().contains("@fpt.edu.vn")) {
-//            EmailInfo email = new EmailInfo(acct.getEmail());
-//            Gson gson = new GsonBuilder()
-//                    .setLenient()
-//                    .create();
-//            JsonObject obj = gson.toJsonTree(email).getAsJsonObject();
-
                 showProgressDialog();
+
+                EmailInfo account;
+                if (acct.getPhotoUrl() == null) {
+                    account = new EmailInfo(acct.getEmail(), acct.getDisplayName(), "");
+                } else {
+                    account = new EmailInfo(acct.getEmail(), acct.getDisplayName(), acct.getPhotoUrl().toString());
+                }
+
+                SharedPreferences sharedPref = getApplication().getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                Gson gson2 = new Gson();
+                String jsonAccount = gson2.toJson(account);
+                editor.putString("user_email_account", jsonAccount);
+                editor.apply();
+
                 JsonParser parser = new JsonParser();
                 String testMail="khanhkt@fpt.edu.vn";
 //                JsonObject obj = parser.parse("{\"email\": \"" + acct.getEmail() + "\"}").getAsJsonObject();
                 JsonObject obj = parser.parse("{\"email\": \"" + testMail + "\"}").getAsJsonObject();
 
-                serverAPI.getEmployeeInfo(obj).enqueue(new Callback<EmployeeInfo>() {
-                    @Override
-                    public void onResponse(Call<EmployeeInfo> call, Response<EmployeeInfo> response) {
-                        EmployeeInfo empInfo = response.body();
-                        if (empInfo != null && response.code() == 200) {
-                            DatabaseManager.getInstance().deleteAllSchedules();
+                if(type.equals("lecture")){
+                    serverAPI.getScheduleEmployeeInfo(obj).enqueue(new Callback<ScheduleUserInfo>() {
+                        @Override
+                        public void onResponse(Call<ScheduleUserInfo> call, Response<ScheduleUserInfo> response) {
+                            ScheduleUserInfo empInfo = response.body();
+                            if (empInfo != null && response.code() == 200) {
+                                DatabaseManager.getInstance().deleteAllSchedules();
 
-                            String date = "";
-                            for (ScheduleResponse schedule : empInfo.getScheduleList()) {
-                                Schedule aSchedule = new Schedule();
-                                aSchedule.setCourse(schedule.getCourseName());
-                                aSchedule.setStartTime(schedule.getStartTime());
-                                aSchedule.setEndTime(schedule.getEndTime());
-                                aSchedule.setLecture(empInfo.getEmp().getFullName());
-                                aSchedule.setRoom(schedule.getRoom());
-                                aSchedule.setSlot(schedule.getSlot());
-                                aSchedule.setDate(schedule.getDate());
+                                String date = "";
+                                for (ScheduleResponse schedule : empInfo.getScheduleList()) {
+                                    Schedule aSchedule = new Schedule();
+                                    aSchedule.setCourse(schedule.getCourseName());
+                                    aSchedule.setStartTime(schedule.getStartTime());
+                                    aSchedule.setEndTime(schedule.getEndTime());
+                                    aSchedule.setLecture(schedule.getLecture());
+                                    aSchedule.setRoom(schedule.getRoom());
+                                    aSchedule.setSlot(schedule.getSlot());
+                                    aSchedule.setDate(schedule.getDate());
 
-                                if (schedule.getDate().equals(date)) {
-                                    aSchedule.setIsFirstSlot("false");
-                                } else {
-                                    date = schedule.getDate();
-                                    aSchedule.setIsFirstSlot("true");
+                                    if (schedule.getDate().equals(date)) {
+                                        aSchedule.setIsFirstSlot("false");
+                                    } else {
+                                        date = schedule.getDate();
+                                        aSchedule.setIsFirstSlot("true");
+                                    }
+
+                                    aSchedule.setIsNew("false");
+
+                                    DatabaseManager.getInstance().addSchedule(aSchedule);
                                 }
 
-                                DatabaseManager.getInstance().addSchedule(aSchedule);
-                            }
 
+                                UserInfo userInfo = new UserInfo();
+                                userInfo.setCode(empInfo.getEmp().getCode());
+                                userInfo.setId(empInfo.getEmp().getId());
+                                userInfo.setName(empInfo.getEmp().getFullName());
+                                userInfo.setRole(empInfo.getEmp().getPosition());
 
-                            UserInfo userInfo = new UserInfo();
-                            userInfo.setCode(empInfo.getEmp().getCode());
-                            userInfo.setId(empInfo.getEmp().getId());
-                            userInfo.setName(empInfo.getEmp().getFullName());
-                            userInfo.setRole(empInfo.getEmp().getPosition());
+                                Utils.setUserInfo(userInfo, getApplication(), true);
 
-                            Utils.setUserInfo(userInfo, getApplication(), true);
-                            EmailInfo account;
-                            if (acct.getPhotoUrl() == null) {
-                                account = new EmailInfo(acct.getEmail(), acct.getDisplayName(), "");
+                                hideProgressDialog();
+
+                                Intent intent = new Intent(getBaseContext(), MainActivity.class);
+                                startActivity(intent);
+                                finish();
                             } else {
-                                account = new EmailInfo(acct.getEmail(), acct.getDisplayName(), acct.getPhotoUrl().toString());
+                                Utils.clearUserInfo(getApplication());
+                                signOut();
+
+                                AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
+                                alertDialog.setTitle("Login Failed");
+                                alertDialog.setMessage("This function can only be used by FPT account.");
+                                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                hideProgressDialog();
+                                alertDialog.show();
+
                             }
+                        }
 
-                            SharedPreferences sharedPref = getApplication().getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
-                            SharedPreferences.Editor editor = sharedPref.edit();
-                            Gson gson2 = new Gson();
-                            String jsonAccount = gson2.toJson(account);
-                            editor.putString("user_email_account", jsonAccount);
-                            editor.commit();
-
-                            hideProgressDialog();
-
-                            Intent intent = new Intent(getBaseContext(), MainActivity.class);
-                            startActivity(intent);
-                            finish();
-                        } else {
+                        @Override
+                        public void onFailure(Call<ScheduleUserInfo> call, Throwable t) {
                             Utils.clearUserInfo(getApplication());
                             signOut();
 
                             AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
                             alertDialog.setTitle("Login Failed");
-                            alertDialog.setMessage("This function can only be used by FPT account.");
+                            alertDialog.setMessage("Connection error.");
                             alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
@@ -263,28 +295,22 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
                                     });
                             hideProgressDialog();
                             alertDialog.show();
-
                         }
-                    }
+                    });
+                }
 
-                    @Override
-                    public void onFailure(Call<EmployeeInfo> call, Throwable t) {
-                        Utils.clearUserInfo(getApplication());
-                        signOut();
+                if(type.equals("student")){
+                    Toast.makeText(getBaseContext(),"student",Toast.LENGTH_SHORT).show();
 
-                        AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
-                        alertDialog.setTitle("Login Failed");
-                        alertDialog.setMessage("Connection error.");
-                        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                });
-                        hideProgressDialog();
-                        alertDialog.show();
-                    }
-                });
+                    UserInfo userInfo = new UserInfo();
+                    userInfo.setCode("0000");
+                    userInfo.setId(0);
+                    userInfo.setName("long");
+                    userInfo.setRole("student");
+
+                    Utils.setUserInfo(userInfo, getApplication(), false);
+                }
+
             } else {
                 Utils.showNotificationDialog(this, "Login failed", "This account is not belong to FPT University");
                 signOut();
@@ -294,23 +320,31 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
     // [END handleSignInResult]
 
     // [START signIn]
-    private void signIn() {
+    private void signIn(String type) {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-        startActivityForResult(signInIntent, RC_SIGN_IN);
+        if(type.equals("lecture")){
+            startActivityForResult(signInIntent, LECTURE_SIGN_IN);
+        }
+        if(type.equals("student")){
+            startActivityForResult(signInIntent, STUDENT_SIGN_IN);
+        }
     }
     // [END signIn]
 
     // [START signOut]
     public void signOut() {
-        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
-                new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(Status status) {
-                        // [START_EXCLUDE]
-//                        updateUI(false);
-                        // [END_EXCLUDE]
-                    }
-                });
+        if(mGoogleApiClient.isConnected()){
+            Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                    new ResultCallback<Status>() {
+                        @Override
+                        public void onResult(Status status) {
+                            Utils.clearUserInfo(getApplication());
+                            Intent intent = new Intent(getBaseContext(), LoginActivity.class);
+                            startActivity(intent);
+                        }
+                    });
+        }
+
     }
     // [END signOut]
 
@@ -322,14 +356,6 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
     }
 
-
-    private void updateUI(boolean signedIn) {
-        if (signedIn) {
-            findViewById(R.id.sign_in_button).setVisibility(View.GONE);
-        } else {
-            findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
-        }
-    }
 
     public void showProgressDialog() {
         if (mProgressDialog == null) {
@@ -352,15 +378,16 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.sign_in_button:
-                signIn();
+                signIn("lecture");
                 break;
             case R.id.btnGuest:
-                UserInfo aUser = new UserInfo(0, "", "", "");
-                Utils.setUserInfo(aUser, getApplication(), false);
-
-                Intent intent = new Intent(getBaseContext(), MainActivity.class);
-                startActivity(intent);
-                finish();
+//                UserInfo aUser = new UserInfo(0, "", "", "");
+//                Utils.setUserInfo(aUser, getApplication(), false);
+//
+//                Intent intent = new Intent(getBaseContext(), MainActivity.class);
+//                startActivity(intent);
+//                finish();
+                signIn("student");
                 break;
         }
     }

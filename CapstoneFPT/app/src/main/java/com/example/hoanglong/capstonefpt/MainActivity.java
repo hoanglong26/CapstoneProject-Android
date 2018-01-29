@@ -22,6 +22,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 import com.gordonwong.materialsheetfab.MaterialSheetFab;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -72,6 +74,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        SharedPreferences sharedPref = this.getApplication().getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
+        String userEmailJson = sharedPref.getString("user_email_account", "");
+        Gson gson = new Gson();
+        final EmailInfo account = gson.fromJson(userEmailJson, EmailInfo.class);
+
+        FirebaseMessaging.getInstance().subscribeToTopic(account.getEmail().substring(0,account.getEmail().indexOf("@")));
+
         setSupportActionBar(toolbar);
 
         adapterViewPager = new FragmentAdapter(getSupportFragmentManager(), "0");
@@ -107,12 +117,6 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-
-
-        SharedPreferences sharedPref = this.getApplication().getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
-        String userEmailJson = sharedPref.getString("user_email_account", "");
-        Gson gson = new Gson();
-        final EmailInfo account = gson.fromJson(userEmailJson, EmailInfo.class);
 
 
         headerResult = new AccountHeaderBuilder()
@@ -173,6 +177,8 @@ public class MainActivity extends AppCompatActivity {
                             }
                             break;
                             case 3: {
+                                FirebaseMessaging.getInstance().unsubscribeFromTopic(account.getEmail().substring(0,account.getEmail().indexOf("@")));
+
                                 Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
                                         new ResultCallback<Status>() {
                                             @Override

@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.hoanglong.capstonefpt.R;
+import com.example.hoanglong.capstonefpt.ormlite.DatabaseManager;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import com.mikepenz.fastadapter.items.AbstractItem;
@@ -44,8 +45,10 @@ public class Schedule extends AbstractItem<Schedule, Schedule.ViewHolder> implem
     private String date;
     @DatabaseField
     private String isFirstSlot;
+    @DatabaseField
+    private String isNew;
 
-    public Schedule(int id, String startTime, String endTime, String course, String lecture, String room, String slot, String date, String isFirstSlot) {
+    public Schedule(int id, String startTime, String endTime, String course, String lecture, String room, String slot, String date, String isFirstSlot, String isNew) {
         this.id = id;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -54,7 +57,8 @@ public class Schedule extends AbstractItem<Schedule, Schedule.ViewHolder> implem
         this.room = room;
         this.slot = slot;
         this.date = date;
-        this.isFirstSlot=isFirstSlot;
+        this.isFirstSlot = isFirstSlot;
+        this.isNew = isNew;
     }
 
     public Schedule() {
@@ -70,6 +74,7 @@ public class Schedule extends AbstractItem<Schedule, Schedule.ViewHolder> implem
         slot = in.readString();
         date = in.readString();
         isFirstSlot = in.readString();
+        isNew = in.readString();
 
     }
 
@@ -86,6 +91,7 @@ public class Schedule extends AbstractItem<Schedule, Schedule.ViewHolder> implem
             instance.slot = ((String) in.readValue((String.class.getClassLoader())));
             instance.date = ((String) in.readValue((String.class.getClassLoader())));
             instance.isFirstSlot = ((String) in.readValue((String.class.getClassLoader())));
+            instance.isNew = ((String) in.readValue((String.class.getClassLoader())));
 
             return instance;
 
@@ -169,6 +175,14 @@ public class Schedule extends AbstractItem<Schedule, Schedule.ViewHolder> implem
         this.date = date;
     }
 
+    public String getIsNew() {
+        return isNew;
+    }
+
+    public void setIsNew(String isNew) {
+        this.isNew = isNew;
+    }
+
     //The unique ID for this type of item
     @Override
     public int getType() {
@@ -205,9 +219,7 @@ public class Schedule extends AbstractItem<Schedule, Schedule.ViewHolder> implem
                 df = new SimpleDateFormat("EEEE, dd/MM/yyyy");
                 viewHolder.date.setText(df.format(aDate));
                 viewHolder.date.setVisibility(View.VISIBLE);
-
             }
-
 
             Date today = new Date();
             DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
@@ -216,8 +228,8 @@ public class Schedule extends AbstractItem<Schedule, Schedule.ViewHolder> implem
 
                 int hour = now.get(Calendar.HOUR);
                 int minute = now.get(Calendar.MINUTE);
-                String am_pm = now.get(Calendar.AM_PM) == 0? "AM":"PM";
-                String nowString = hour + ":" + minute + ":00 "+ am_pm;
+                String am_pm = now.get(Calendar.AM_PM) == 0 ? "AM" : "PM";
+                String nowString = hour + ":" + minute + ":00 " + am_pm;
 
                 df = new SimpleDateFormat("HH:mm:ss");
 
@@ -225,10 +237,29 @@ public class Schedule extends AbstractItem<Schedule, Schedule.ViewHolder> implem
                 Date aDate = df2.parse(nowString);
                 String tmp = df.format(aDate);
 
-                if (df.parse(tmp).after(df.parse(startTime)) && df.parse(tmp).before(df.parse(endTime))) {
+                long ADDING_MINUTE_IN_MILLIS = 60000 * 15;
+                long endTimeInMs = df.parse(startTime).getTime();
+                Date endTimeAfterAddingMins = new Date(endTimeInMs - ADDING_MINUTE_IN_MILLIS);
+
+                if (df.parse(tmp).after(endTimeAfterAddingMins) && df.parse(tmp).before(df.parse(endTime))) {
                     viewHolder.itemContainer.setBackgroundColor(viewHolder.itemContainer.getResources().getColor(R.color.md_blue_100));
                 }
+
+                if (df.parse(tmp).after(df.parse(endTime))) {
+                    viewHolder.itemContainer.setBackgroundColor(viewHolder.itemContainer.getResources().getColor(R.color.material_grey_300));
+                }
+            } else {
+                if (df.parse(date).before(today)) {
+                    viewHolder.itemContainer.setBackgroundColor(viewHolder.itemContainer.getResources().getColor(R.color.material_grey_300));
+                    viewHolder.date.setBackgroundColor(viewHolder.date.getResources().getColor(R.color.material_grey_300));
+                } else {
+                    if (isNew.equals("true")) {
+                        viewHolder.itemContainer.setBackgroundColor(viewHolder.itemContainer.getResources().getColor(R.color.md_yellow_300));
+                        DatabaseManager.getInstance().changeIsNewToFalse(id);
+                    }
+                }
             }
+
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -248,6 +279,7 @@ public class Schedule extends AbstractItem<Schedule, Schedule.ViewHolder> implem
         viewHolder.slot.setText(null);
         viewHolder.date.setText(null);
         viewHolder.itemContainer.setBackgroundColor(viewHolder.itemContainer.getResources().getColor(R.color.md_white_1000));
+        viewHolder.date.setBackgroundColor(viewHolder.date.getResources().getColor(R.color.md_white_1000));
 
     }
 
