@@ -6,5 +6,11 @@
 
     <string name="error_message_login_failed">Network connection unavailable.\nPlease check that you have a data connection and try again.</string>
     <string name="error_title_login_failed">Login Failed</string>
+    <string name="all_schedule">All Schedule</string>
+    <string name="week_schedule">Week Schedule</string>
+    <string name="today_schedule">Today Schedule</string>
+    <string name="user_email_account">user_email_account</string>
+    <string name="pick_a_day">Pick a day</string>
+    <string name="specific_date">Specific date</string>
 
 </resources>

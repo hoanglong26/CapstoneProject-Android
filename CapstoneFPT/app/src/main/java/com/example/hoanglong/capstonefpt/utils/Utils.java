@@ -217,7 +217,7 @@ public class Utils {
     public static void sendNotificationForFireBase(Context context, String msg, String newScheduleJson) {
 
         SharedPreferences sharedPref = context.getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
-        String userEmailJson = sharedPref.getString("user_email_account", "");
+        String userEmailJson = sharedPref.getString(context.getString(R.string.user_email_account), "");
 
         if (!userEmailJson.equals("")) {
             NotificationCompat.Builder builder =

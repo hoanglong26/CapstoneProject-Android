@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         SharedPreferences sharedPref = this.getApplication().getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
-        String userEmailJson = sharedPref.getString("user_email_account", "");
+        String userEmailJson = sharedPref.getString(getString(R.string.user_email_account), "");
         Gson gson = new Gson();
         final EmailInfo account = gson.fromJson(userEmailJson, EmailInfo.class);
 
@@ -106,12 +106,12 @@ public class MainActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.navigation_history:
                         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, adapterViewPager.getItem(0)).commit();
-                        toolbar.setTitle("Week Schedule");
+                        toolbar.setTitle(R.string.week_schedule);
 
                         return true;
                     case R.id.navigation_about:
                         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, adapterViewPager.getItem(1)).commit();
-                        toolbar.setTitle("Week Schedule");
+                        toolbar.setTitle(R.string.week_schedule);
                         return true;
                 }
                 return false;
@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
                                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, ScheduleFragment.newInstance("Schedule")).commit();
                                 result.closeDrawer();
                                 navigation.setSelectedItemId(R.id.navigation_history);
-                                toolbar.setTitle("Week Schedule");
+                                toolbar.setTitle(getString(R.string.week_schedule));
                             }
                             break;
                             case 3: {

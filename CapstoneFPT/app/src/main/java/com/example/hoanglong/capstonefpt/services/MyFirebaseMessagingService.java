@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.hoanglong.capstonefpt.utils.Utils.sendNotificationForFireBase;
@@ -40,8 +41,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 }.getType();
                 newScheduleList = gson.fromJson(remoteMessage.getData().get("newScheduleList"), scheduleType);
                 for (ScheduleResponse schedule : newScheduleList) {
+                    List<ScheduleResponse> newSchedule = new ArrayList<>();
+                    newSchedule.add(schedule);
+
                     String msg = "Your schedule on day " + schedule.getDate() + ", " + schedule.getSlot() + " has been changed.";
-                    sendNotificationForFireBase(getBaseContext(), msg, remoteMessage.getData().get("newScheduleList"));
+//                    sendNotificationForFireBase(getBaseContext(), msg, remoteMessage.getData().get("newScheduleList"));
+                    sendNotificationForFireBase(getBaseContext(), msg, gson.toJson(newSchedule));
+
                 }
 
             }

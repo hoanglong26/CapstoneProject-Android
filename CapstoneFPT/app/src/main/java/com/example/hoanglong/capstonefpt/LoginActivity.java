@@ -14,8 +14,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.hoanglong.capstonefpt.POJOs.APIresponses.ScheduleUserInfo;
 import com.example.hoanglong.capstonefpt.POJOs.APIresponses.ScheduleResponse;
+import com.example.hoanglong.capstonefpt.POJOs.APIresponses.ScheduleUserInfo;
 import com.example.hoanglong.capstonefpt.POJOs.EmailInfo;
 import com.example.hoanglong.capstonefpt.POJOs.Schedule;
 import com.example.hoanglong.capstonefpt.POJOs.UserInfo;
@@ -153,10 +153,10 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
                     SharedPreferences sharedPref = getApplication().getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
                     boolean isLecture = sharedPref.getBoolean("isLecture", false);
 
-                    if(isLecture){
-                        handleSignInResult(googleSignInResult,"lecture");
-                    }else{
-                        handleSignInResult(googleSignInResult,"student");
+                    if (isLecture) {
+                        handleSignInResult(googleSignInResult, "lecture");
+                    } else {
+                        handleSignInResult(googleSignInResult, "student");
 
                     }
                 }
@@ -207,76 +207,77 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
                 SharedPreferences.Editor editor = sharedPref.edit();
                 Gson gson2 = new Gson();
                 String jsonAccount = gson2.toJson(account);
-                editor.putString("user_email_account", jsonAccount);
+                editor.putString(getString(R.string.user_email_account), jsonAccount);
                 editor.apply();
 
                 JsonParser parser = new JsonParser();
-                String testMail="khanhkt@fpt.edu.vn";
-//                JsonObject obj = parser.parse("{\"email\": \"" + acct.getEmail() + "\"}").getAsJsonObject();
+                String testMail = "khanhkt@fpt.edu.vn";
                 JsonObject obj = parser.parse("{\"email\": \"" + testMail + "\"}").getAsJsonObject();
+//                JsonObject obj = parser.parse("{\"email\": \"" + acct.getEmail() + "\"}").getAsJsonObject();
 
-                if(type.equals("lecture")){
+                if (type.equals("lecture")) {
                     serverAPI.getScheduleEmployeeInfo(obj).enqueue(new Callback<ScheduleUserInfo>() {
                         @Override
                         public void onResponse(Call<ScheduleUserInfo> call, Response<ScheduleUserInfo> response) {
-                            ScheduleUserInfo empInfo = response.body();
-                            if (empInfo != null && response.code() == 200) {
-                                DatabaseManager.getInstance().deleteAllSchedules();
-
-                                String date = "";
-                                for (ScheduleResponse schedule : empInfo.getScheduleList()) {
-                                    Schedule aSchedule = new Schedule();
-                                    aSchedule.setCourse(schedule.getCourseName());
-                                    aSchedule.setStartTime(schedule.getStartTime());
-                                    aSchedule.setEndTime(schedule.getEndTime());
-                                    aSchedule.setLecture(schedule.getLecture());
-                                    aSchedule.setRoom(schedule.getRoom());
-                                    aSchedule.setSlot(schedule.getSlot());
-                                    aSchedule.setDate(schedule.getDate());
-
-                                    if (schedule.getDate().equals(date)) {
-                                        aSchedule.setIsFirstSlot("false");
-                                    } else {
-                                        date = schedule.getDate();
-                                        aSchedule.setIsFirstSlot("true");
-                                    }
-
-                                    aSchedule.setIsNew("false");
-
-                                    DatabaseManager.getInstance().addSchedule(aSchedule);
-                                }
-
-
-                                UserInfo userInfo = new UserInfo();
-                                userInfo.setCode(empInfo.getEmp().getCode());
-                                userInfo.setId(empInfo.getEmp().getId());
-                                userInfo.setName(empInfo.getEmp().getFullName());
-                                userInfo.setRole(empInfo.getEmp().getPosition());
-
-                                Utils.setUserInfo(userInfo, getApplication(), true);
-
-                                hideProgressDialog();
-
-                                Intent intent = new Intent(getBaseContext(), MainActivity.class);
-                                startActivity(intent);
-                                finish();
-                            } else {
-                                Utils.clearUserInfo(getApplication());
-                                signOut();
-
-                                AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
-                                alertDialog.setTitle("Login Failed");
-                                alertDialog.setMessage("This function can only be used by FPT account.");
-                                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                dialog.dismiss();
-                                            }
-                                        });
-                                hideProgressDialog();
-                                alertDialog.show();
-
-                            }
+//                            ScheduleUserInfo empInfo = response.body();
+//                            if (empInfo != null && response.code() == 200) {
+//                                DatabaseManager.getInstance().deleteAllSchedules();
+//
+//                                String date = "";
+//                                for (ScheduleResponse schedule : empInfo.getScheduleList()) {
+//                                    Schedule aSchedule = new Schedule();
+//                                    aSchedule.setCourse(schedule.getCourseName());
+//                                    aSchedule.setStartTime(schedule.getStartTime());
+//                                    aSchedule.setEndTime(schedule.getEndTime());
+//                                    aSchedule.setLecture(schedule.getLecture());
+//                                    aSchedule.setRoom(schedule.getRoom());
+//                                    aSchedule.setSlot(schedule.getSlot());
+//                                    aSchedule.setDate(schedule.getDate());
+//
+//                                    if (schedule.getDate().equals(date)) {
+//                                        aSchedule.setIsFirstSlot("false");
+//                                    } else {
+//                                        date = schedule.getDate();
+//                                        aSchedule.setIsFirstSlot("true");
+//                                    }
+//
+//                                    aSchedule.setIsNew("false");
+//
+//                                    DatabaseManager.getInstance().addSchedule(aSchedule);
+//                                }
+//
+//
+//                                UserInfo userInfo = new UserInfo();
+//                                userInfo.setCode(empInfo.getEmp().getCode());
+//                                userInfo.setId(empInfo.getEmp().getId());
+//                                userInfo.setName(empInfo.getEmp().getFullName());
+//                                userInfo.setRole(empInfo.getEmp().getPosition());
+//
+//                                Utils.setUserInfo(userInfo, getApplication(), true);
+//
+//                                hideProgressDialog();
+//
+//                                Intent intent = new Intent(getBaseContext(), MainActivity.class);
+//                                startActivity(intent);
+//                                finish();
+//                            } else {
+//                                Utils.clearUserInfo(getApplication());
+//                                signOut();
+//
+//                                AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
+//                                alertDialog.setTitle("Login Failed");
+//                                alertDialog.setMessage("This function can only be used by FPT account.");
+//                                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+//                                        new DialogInterface.OnClickListener() {
+//                                            public void onClick(DialogInterface dialog, int which) {
+//                                                dialog.dismiss();
+//                                            }
+//                                        });
+//                                hideProgressDialog();
+//                                alertDialog.show();
+//
+//                            }
+                            handleSuccessResponse(response);
                         }
 
                         @Override
@@ -299,16 +300,92 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
                     });
                 }
 
-                if(type.equals("student")){
-                    Toast.makeText(getBaseContext(),"student",Toast.LENGTH_SHORT).show();
+                if (type.equals("student")) {
+                    Toast.makeText(getBaseContext(), "student", Toast.LENGTH_SHORT).show();
+                    obj = parser.parse("{\"email\": \"" + acct.getEmail() + "\"}").getAsJsonObject();
 
-                    UserInfo userInfo = new UserInfo();
-                    userInfo.setCode("0000");
-                    userInfo.setId(0);
-                    userInfo.setName("long");
-                    userInfo.setRole("student");
+                    serverAPI.getScheduleStudent(obj).enqueue(new Callback<ScheduleUserInfo>() {
+                        @Override
+                        public void onResponse(Call<ScheduleUserInfo> call, Response<ScheduleUserInfo> response) {
+//                            ScheduleUserInfo empInfo = response.body();
+//                            if (empInfo != null && response.code() == 200) {
+//                                DatabaseManager.getInstance().deleteAllSchedules();
+//
+//                                String date = "";
+//                                for (ScheduleResponse schedule : empInfo.getScheduleList()) {
+//                                    Schedule aSchedule = new Schedule();
+//                                    aSchedule.setCourse(schedule.getCourseName());
+//                                    aSchedule.setStartTime(schedule.getStartTime());
+//                                    aSchedule.setEndTime(schedule.getEndTime());
+//                                    aSchedule.setLecture(schedule.getLecture());
+//                                    aSchedule.setRoom(schedule.getRoom());
+//                                    aSchedule.setSlot(schedule.getSlot());
+//                                    aSchedule.setDate(schedule.getDate());
+//
+//                                    if (schedule.getDate().equals(date)) {
+//                                        aSchedule.setIsFirstSlot("false");
+//                                    } else {
+//                                        date = schedule.getDate();
+//                                        aSchedule.setIsFirstSlot("true");
+//                                    }
+//
+//                                    aSchedule.setIsNew("false");
+//
+//                                    DatabaseManager.getInstance().addSchedule(aSchedule);
+//                                }
+//
+//
+//                                UserInfo userInfo = new UserInfo();
+//                                userInfo.setCode(empInfo.getEmp().getCode());
+//                                userInfo.setId(empInfo.getEmp().getId());
+//                                userInfo.setName(empInfo.getEmp().getFullName());
+//                                userInfo.setRole(empInfo.getEmp().getPosition());
+//
+//                                Utils.setUserInfo(userInfo, getApplication(), true);
+//
+//                                hideProgressDialog();
+//
+//                                Intent intent = new Intent(getBaseContext(), MainActivity.class);
+//                                startActivity(intent);
+//                                finish();
+//                            } else {
+//                                Utils.clearUserInfo(getApplication());
+//                                signOut();
+//
+//                                AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
+//                                alertDialog.setTitle("Login Failed");
+//                                alertDialog.setMessage("This function can only be used by FPT account.");
+//                                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+//                                        new DialogInterface.OnClickListener() {
+//                                            public void onClick(DialogInterface dialog, int which) {
+//                                                dialog.dismiss();
+//                                            }
+//                                        });
+//                                hideProgressDialog();
+//                                alertDialog.show();
+//
+//                            }
+                            handleSuccessResponse(response);
+                        }
 
-                    Utils.setUserInfo(userInfo, getApplication(), false);
+                        @Override
+                        public void onFailure(Call<ScheduleUserInfo> call, Throwable t) {
+                            Utils.clearUserInfo(getApplication());
+                            signOut();
+
+                            AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
+                            alertDialog.setTitle("Login Failed");
+                            alertDialog.setMessage("Connection error.");
+                            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
+                                    });
+                            hideProgressDialog();
+                            alertDialog.show();
+                        }
+                    });
                 }
 
             } else {
@@ -319,13 +396,75 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
     }
     // [END handleSignInResult]
 
+    private void handleSuccessResponse(Response<ScheduleUserInfo> response) {
+        ScheduleUserInfo empInfo = response.body();
+        if (empInfo != null && response.code() == 200) {
+            DatabaseManager.getInstance().deleteAllSchedules();
+
+            String date = "";
+            for (ScheduleResponse schedule : empInfo.getScheduleList()) {
+                Schedule aSchedule = new Schedule();
+                aSchedule.setCourse(schedule.getCourseName());
+                aSchedule.setStartTime(schedule.getStartTime());
+                aSchedule.setEndTime(schedule.getEndTime());
+                aSchedule.setLecture(schedule.getLecture());
+                aSchedule.setRoom(schedule.getRoom());
+                aSchedule.setSlot(schedule.getSlot());
+                aSchedule.setDate(schedule.getDate());
+
+                if (schedule.getDate().equals(date)) {
+                    aSchedule.setIsFirstSlot("false");
+                } else {
+                    date = schedule.getDate();
+                    aSchedule.setIsFirstSlot("true");
+                }
+
+                aSchedule.setIsNew("false");
+
+                DatabaseManager.getInstance().addSchedule(aSchedule);
+            }
+
+
+            UserInfo userInfo = new UserInfo();
+            userInfo.setCode(empInfo.getEmp().getCode());
+            userInfo.setId(empInfo.getEmp().getId());
+            userInfo.setName(empInfo.getEmp().getFullName());
+            userInfo.setRole(empInfo.getEmp().getPosition());
+
+            Utils.setUserInfo(userInfo, getApplication(), true);
+
+            hideProgressDialog();
+
+            Intent intent = new Intent(getBaseContext(), MainActivity.class);
+            startActivity(intent);
+            finish();
+        } else {
+            Utils.clearUserInfo(getApplication());
+            signOut();
+
+            AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
+            alertDialog.setTitle("Login Failed");
+            alertDialog.setMessage("This function can only be used by FPT account.");
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            hideProgressDialog();
+            alertDialog.show();
+
+        }
+    }
+
+
     // [START signIn]
     private void signIn(String type) {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-        if(type.equals("lecture")){
+        if (type.equals("lecture")) {
             startActivityForResult(signInIntent, LECTURE_SIGN_IN);
         }
-        if(type.equals("student")){
+        if (type.equals("student")) {
             startActivityForResult(signInIntent, STUDENT_SIGN_IN);
         }
     }
@@ -333,7 +472,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
 
     // [START signOut]
     public void signOut() {
-        if(mGoogleApiClient.isConnected()){
+        if (mGoogleApiClient.isConnected()) {
             Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
                     new ResultCallback<Status>() {
                         @Override

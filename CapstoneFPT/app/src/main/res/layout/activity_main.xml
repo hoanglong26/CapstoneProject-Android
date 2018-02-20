@@ -107,14 +107,14 @@
                         android:id="@+id/tvToday"
                         style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
                         android:drawableStart="@drawable/ic_today"
-                        android:text="Today Schedule" />
+                        android:text="@string/today_schedule" />
 
                     <!-- Change to week view -->
                     <TextView
                         android:id="@+id/tvWeek"
                         style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
                         android:drawableStart="@drawable/ic_view_week"
-                        android:text="Week Schedule" />
+                        android:text="@string/week_schedule" />
 
 
                     <!-- Change to all view -->
@@ -122,7 +122,14 @@
                         android:id="@+id/tvAll"
                         style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
                         android:drawableStart="@drawable/ic_view_all"
-                        android:text="All Schedule" />
+                        android:text="@string/all_schedule" />
+
+                    <!-- Change to pick day view -->
+                    <TextView
+                        android:id="@+id/tvPickDay"
+                        style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
+                        android:drawableStart="@drawable/ic_view_all"
+                        android:text="@string/pick_a_day" />
                 </LinearLayout>
 
 

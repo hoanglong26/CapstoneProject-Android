@@ -1,5 +1,6 @@
 package com.example.hoanglong.capstonefpt.fragments;
 
+import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.hoanglong.capstonefpt.POJOs.APIresponses.ScheduleResponse;
 import com.example.hoanglong.capstonefpt.POJOs.APIresponses.ScheduleUserInfo;
@@ -67,10 +69,10 @@ public class ScheduleFragment extends Fragment {
 
     FastItemAdapter<Schedule> fastAdapter = new FastItemAdapter<>();
 
+
     public ScheduleFragment() {
         // Required empty public constructor
     }
-
 
     public static ScheduleFragment newInstance(String title) {
         ScheduleFragment fragment = new ScheduleFragment();
@@ -100,11 +102,26 @@ public class ScheduleFragment extends Fragment {
 
         //set the items to your ItemAdapter
         List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
-
         fastAdapter.clear();
-        fastAdapter.add(normalizeList(scheduleList, "week"));
-        fastAdapter.notifyAdapterDataSetChanged();
 
+//        int hasNew = -1;
+//        for (int i = 0; i < scheduleList.size(); i++) {
+//            if (scheduleList.get(i).getIsNew().equals("true")) {
+//                hasNew = i;
+//                break;
+//            }
+//        }
+//
+//        if (hasNew == -1) {
+//            fastAdapter.add(normalizeList(scheduleList, "week"));
+//        } else {
+//            fastAdapter.add(normalizeList(scheduleList, "all"));
+//            rvSchedule.scrollToPosition(hasNew);
+//            hasNew = -1;
+//        }
+
+        fastAdapter.add(normalizeList(scheduleList, "week",null));
+        fastAdapter.notifyAdapterDataSetChanged();
         fastAdapter.withSelectable(true);
         fastAdapter.withOnClickListener(new OnClickListener<Schedule>() {
             @Override
@@ -115,7 +132,7 @@ public class ScheduleFragment extends Fragment {
         });
 
         SharedPreferences sharedPref = getActivity().getApplication().getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
-        String userEmailJson = sharedPref.getString("user_email_account", "");
+        String userEmailJson = sharedPref.getString(getString(R.string.user_email_account), "");
         Gson gson = new Gson();
         final EmailInfo userEmail = gson.fromJson(userEmailJson, EmailInfo.class);
 
@@ -146,7 +163,7 @@ public class ScheduleFragment extends Fragment {
                                             aSchedule.setCourse(schedule.getCourseName());
                                             aSchedule.setStartTime(schedule.getStartTime());
                                             aSchedule.setEndTime(schedule.getEndTime());
-                                            aSchedule.setLecture(empInfo.getEmp().getFullName());
+                                            aSchedule.setLecture(schedule.getLecture());
                                             aSchedule.setRoom(schedule.getRoom());
                                             aSchedule.setSlot(schedule.getSlot());
                                             aSchedule.setDate(schedule.getDate());
@@ -167,7 +184,7 @@ public class ScheduleFragment extends Fragment {
                                         List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
 
                                         fastAdapter.clear();
-                                        fastAdapter.add(normalizeList(scheduleList, "week"));
+                                        fastAdapter.add(normalizeList(scheduleList, "week", null));
                                         fastAdapter.notifyAdapterDataSetChanged();
                                         srlHistory.setRefreshing(false);
                                     }
@@ -200,8 +217,8 @@ public class ScheduleFragment extends Fragment {
             public void onClick(View view) {
                 try {
                     List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
-                    List<Schedule> todayList = normalizeList(scheduleList, "today");
-                    ((Toolbar) getActivity().findViewById(R.id.toolbar)).setTitle("Today Schedule");
+                    List<Schedule> todayList = normalizeList(scheduleList, "today",null);
+                    ((Toolbar) getActivity().findViewById(R.id.toolbar)).setTitle(R.string.today_schedule);
 
                     fastAdapter.clear();
                     fastAdapter.add(todayList);
@@ -215,14 +232,13 @@ public class ScheduleFragment extends Fragment {
             }
         });
 
-
         getActivity().findViewById(R.id.tvWeek).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
                     List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
-                    List<Schedule> todayList = normalizeList(scheduleList, "week");
-                    ((Toolbar) getActivity().findViewById(R.id.toolbar)).setTitle("Week Schedule");
+                    List<Schedule> todayList = normalizeList(scheduleList, "week",null);
+                    ((Toolbar) getActivity().findViewById(R.id.toolbar)).setTitle(R.string.week_schedule);
 
                     fastAdapter.clear();
                     fastAdapter.add(todayList);
@@ -241,8 +257,8 @@ public class ScheduleFragment extends Fragment {
             public void onClick(View view) {
                 try {
                     List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
-                    List<Schedule> todayList = normalizeList(scheduleList, "all");
-                    ((Toolbar) getActivity().findViewById(R.id.toolbar)).setTitle("All Schedule");
+                    List<Schedule> todayList = normalizeList(scheduleList, "all",null);
+                    ((Toolbar) getActivity().findViewById(R.id.toolbar)).setTitle(R.string.all_schedule);
 
                     fastAdapter.clear();
                     fastAdapter.add(todayList);
@@ -255,10 +271,47 @@ public class ScheduleFragment extends Fragment {
 
             }
         });
+
+        getActivity().findViewById(R.id.tvPickDay).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+
+
+                    DatePickerDialog.OnDateSetListener mDateSetListener =
+                            (view1, year, monthOfYear, dayOfMonth) -> {
+                                Calendar c = Calendar.getInstance();
+                                c.set(year, monthOfYear, dayOfMonth, 0, 0);
+                                List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
+                                List<Schedule> todayList = normalizeList(scheduleList, "specific", c.getTime());
+                                ((Toolbar) getActivity().findViewById(R.id.toolbar)).setTitle(R.string.specific_date);
+
+                                fastAdapter.clear();
+                                fastAdapter.add(todayList);
+                                fastAdapter.notifyAdapterDataSetChanged();
+                                srlHistory.setRefreshing(false);
+                                materialSheetFab.hideSheet();
+
+                                Toast.makeText(getContext(), year + " " + monthOfYear + " " + dayOfMonth, Toast.LENGTH_SHORT).show();
+                            };
+
+                    final Calendar c = Calendar.getInstance();
+                    int year = c.get(Calendar.YEAR);
+                    int month = c.get(Calendar.MONTH);
+                    int day = c.get(Calendar.DAY_OF_MONTH);
+                    DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(), mDateSetListener, year, month, day);
+                    datePickerDialog.show();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
         return rootView;
     }
 
-    private List<Schedule> normalizeList(List<Schedule> scheduleList, String type) {
+    private List<Schedule> normalizeList(List<Schedule> scheduleList, String type, Date specificDate) {
         List<Schedule> aList = new ArrayList<>();
 
         try {
@@ -284,6 +337,15 @@ public class ScheduleFragment extends Fragment {
                 }
             }
 
+            if (type.equals("specific") && specificDate != null) {
+                for (Schedule schedule : scheduleList) {
+                    if (schedule.getDate().equals(df.format(specificDate))) {
+                        aList.add(schedule);
+                    }
+                }
+            }
+
+
             if (type.equals("week")) {
                 Date date = new Date();
                 Calendar c = Calendar.getInstance();
@@ -306,7 +368,6 @@ public class ScheduleFragment extends Fragment {
             if (type.equals("all")) {
                 aList = scheduleList;
             }
-
 
             if (aList.size() == 0) {
                 rvSchedule.setVisibility(View.GONE);
@@ -343,7 +404,6 @@ public class ScheduleFragment extends Fragment {
                     schedule.setLecture(lecture);
                 }
 
-                List<Schedule> oldScheduleList = DatabaseManager.getInstance().getAllSchedules();
                 for (ScheduleResponse scheduleResponse : newScheduleList) {
                     Schedule aSchedule = new Schedule();
                     aSchedule.setIsNew("true");
@@ -357,56 +417,11 @@ public class ScheduleFragment extends Fragment {
                     aSchedule.setCourse(scheduleResponse.getCourseName());
                     scheduleList.add(aSchedule);
 
-//                    for (Schedule oldSchedule : oldScheduleList) {
-//                        if (oldSchedule.getDate().equals(aSchedule.getDate())
-//                                && oldSchedule.getSlot().equals(aSchedule.getSlot())) {
-//                            DatabaseManager.getInstance().deleteSchedule(oldSchedule);
-////                            aSchedule.setId(oldSchedule.getId());
-//                        }
-
                     DatabaseManager.getInstance().deleteScheduleByDateAndSlot(aSchedule);
                     DatabaseManager.getInstance().createOrUpdateSchedule(aSchedule);
-//                        }
-
                 }
 
-//                oldScheduleList.addAll(scheduleList);
                 List<Schedule> updatedScheduleList = DatabaseManager.getInstance().getAllSchedules();
-
-//                DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-//                Schedule tmpModel;
-//                for (int i = 0; i < updatedScheduleList.size() - 1; i++) {
-//                    for (int j = 0; j < updatedScheduleList.size() - i - 1; j++) {
-//                        Date aDate = df.parse(updatedScheduleList.get(j).getDate());
-//                        Date aDate2 = df.parse(updatedScheduleList.get(j + 1).getDate());
-//
-//                        if (aDate.compareTo(aDate2) > 0) {
-//                            tmpModel = updatedScheduleList.get(j + 1);
-//                            updatedScheduleList.set(j + 1, updatedScheduleList.get(j));
-//                            updatedScheduleList.set(j, tmpModel);
-//                        }
-//
-//                        if (aDate.compareTo(aDate2) == 0) {
-//                            String slot1 = updatedScheduleList.get(j).getSlot();
-//                            String slot2 = updatedScheduleList.get(j + 1).getSlot();
-//
-//                            if (slot1.compareTo(slot2) > 0) {
-//                                tmpModel = updatedScheduleList.get(j + 1);
-//                                updatedScheduleList.set(j + 1, updatedScheduleList.get(j));
-//                                updatedScheduleList.set(j, tmpModel);
-//                            }
-//                        }
-//                    }
-//
-//                    if (updatedScheduleList.get(i).getDate().equals(date)) {
-//                        updatedScheduleList.get(i).setIsFirstSlot("false");
-//                    } else {
-//                        date = updatedScheduleList.get(i).getDate();
-//                        updatedScheduleList.get(i).setIsFirstSlot("true");
-//                    }
-//                }
-
-
 
                 Collections.sort(updatedScheduleList, new Comparator<Schedule>() {
                     @Override
@@ -448,6 +463,30 @@ public class ScheduleFragment extends Fragment {
                 DatabaseManager.getInstance().deleteAllSchedules();
                 DatabaseManager.getInstance().addAllSchedule(updatedScheduleList);
 
+                rvSchedule.setAdapter(fastAdapter);
+                fastAdapter.clear();
+
+                int hasNew = -1;
+                for (int i = 0; i < updatedScheduleList.size(); i++) {
+                    if (updatedScheduleList.get(i).getIsNew().equals("true")) {
+                        hasNew = i - 1;
+                        break;
+                    }
+                }
+
+                Toolbar toolbar = getActivity().findViewById(R.id.toolbar);
+
+                if (hasNew == -1) {
+                    fastAdapter.add(normalizeList(updatedScheduleList, "week",null));
+                    toolbar.setTitle(R.string.week_schedule);
+
+                } else {
+                    fastAdapter.add(normalizeList(updatedScheduleList, "all", null));
+                    toolbar.setTitle(R.string.all_schedule);
+                    rvSchedule.scrollToPosition(hasNew);
+                    hasNew = -1;
+                }
+                fastAdapter.notifyAdapterDataSetChanged();
             }
 
         } catch (Exception e) {

@@ -22,24 +22,12 @@ public class UserResponse {
     @SerializedName("emailEDU")
     private String emailEdu;
 
-    @SerializedName("emailFE")
-    private String emailFe;
-
-    @SerializedName("gender")
-    private boolean gender;
-
-    @SerializedName("phone")
-    private String phone;
-
-    public UserResponse(int id, String code, String fullName, String position, String emailEdu, String emailFe, boolean gender, String phone) {
+    public UserResponse(int id, String code, String fullName, String position, String emailEdu) {
         this.id = id;
         this.code = code;
         this.fullName = fullName;
         this.position = position;
         this.emailEdu = emailEdu;
-        this.emailFe = emailFe;
-        this.gender = gender;
-        this.phone = phone;
     }
 
     public int getId() {
@@ -82,27 +70,4 @@ public class UserResponse {
         this.emailEdu = emailEdu;
     }
 
-    public String getEmailFe() {
-        return emailFe;
-    }
-
-    public void setEmailFe(String emailFe) {
-        this.emailFe = emailFe;
-    }
-
-    public boolean isGender() {
-        return gender;
-    }
-
-    public void setGender(boolean gender) {
-        this.gender = gender;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
 }

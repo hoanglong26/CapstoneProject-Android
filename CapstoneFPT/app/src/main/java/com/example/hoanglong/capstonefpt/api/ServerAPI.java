@@ -23,6 +23,9 @@ public interface ServerAPI {
 //
     @POST("getScheduleEmployeeInfo")
     Call<ScheduleUserInfo> getScheduleEmployeeInfo(@Body JsonObject email);
+
+    @POST("getScheduleStudent")
+    Call<ScheduleUserInfo> getScheduleStudent(@Body JsonObject email);
 //
 //    @POST("api/Users")
 //    Call<UserAccount> loginViaEmail2(@Body JsonObject email);
