@@ -15,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.hoanglong.capstonefpt.POJOs.APIresponses.ScheduleResponse;
 import com.example.hoanglong.capstonefpt.POJOs.APIresponses.ScheduleUserInfo;
@@ -67,6 +66,10 @@ public class ScheduleFragment extends Fragment {
     SwipeRefreshLayout srlHistory;
     private ServerAPI serverAPI;
 
+    private Handler mHandler;
+    //refresh time of screen
+    private int mInterval = 90000;
+
     FastItemAdapter<Schedule> fastAdapter = new FastItemAdapter<>();
 
 
@@ -79,6 +82,50 @@ public class ScheduleFragment extends Fragment {
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    Runnable mStatusChecker = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                //set the items to your ItemAdapter
+                List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
+                String title = ((Toolbar) getActivity().findViewById(R.id.toolbar)).getTitle().toString();
+                resetAdapter(scheduleList, title);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            mHandler.postDelayed(mStatusChecker, mInterval);
+        }
+    };
+
+    private void resetAdapter(List<Schedule> scheduleList, String title) {
+        List<Schedule> normalizeList = new ArrayList<>();
+        switch (title) {
+            case "Today Schedule": {
+                normalizeList = normalizeList(scheduleList, "today", null);
+            }
+            break;
+            case "Week Schedule": {
+                normalizeList = normalizeList(scheduleList, "week", null);
+            }
+            break;
+            case "All Schedule": {
+                normalizeList = normalizeList(scheduleList, "all", null);
+            }
+            break;
+            default: {
+                normalizeList = normalizeList(scheduleList, "specific", title);
+            }
+            break;
+
+        }
+
+        fastAdapter.clear();
+        fastAdapter.add(normalizeList);
+        fastAdapter.notifyAdapterDataSetChanged();
+        ((Toolbar) getActivity().findViewById(R.id.toolbar)).setTitle(title);
     }
 
     @Override
@@ -94,6 +141,9 @@ public class ScheduleFragment extends Fragment {
         serverAPI = RetrofitUtils.get().create(ServerAPI.class);
         DatabaseManager.init(getActivity().getBaseContext());
 
+        mHandler = new Handler();
+        mStatusChecker.run();
+
         rvSchedule.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         //set our adapters to the RecyclerView
@@ -102,26 +152,8 @@ public class ScheduleFragment extends Fragment {
 
         //set the items to your ItemAdapter
         List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
-        fastAdapter.clear();
+        resetAdapter(scheduleList, getResources().getString(R.string.week_schedule));
 
-//        int hasNew = -1;
-//        for (int i = 0; i < scheduleList.size(); i++) {
-//            if (scheduleList.get(i).getIsNew().equals("true")) {
-//                hasNew = i;
-//                break;
-//            }
-//        }
-//
-//        if (hasNew == -1) {
-//            fastAdapter.add(normalizeList(scheduleList, "week"));
-//        } else {
-//            fastAdapter.add(normalizeList(scheduleList, "all"));
-//            rvSchedule.scrollToPosition(hasNew);
-//            hasNew = -1;
-//        }
-
-        fastAdapter.add(normalizeList(scheduleList, "week",null));
-        fastAdapter.notifyAdapterDataSetChanged();
         fastAdapter.withSelectable(true);
         fastAdapter.withOnClickListener(new OnClickListener<Schedule>() {
             @Override
@@ -150,62 +182,125 @@ public class ScheduleFragment extends Fragment {
                     @Override
                     public void run() {
                         if (getContext() != null) {
-                            serverAPI.getScheduleEmployeeInfo(obj).enqueue(new Callback<ScheduleUserInfo>() {
-                                @Override
-                                public void onResponse(Call<ScheduleUserInfo> call, Response<ScheduleUserInfo> response) {
-                                    ScheduleUserInfo empInfo = response.body();
-                                    if (empInfo != null && response.code() == 200) {
-                                        DatabaseManager.getInstance().deleteAllSchedules();
+                            SharedPreferences sharedPref = getActivity().getApplication().getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
+                            boolean isLecture = sharedPref.getBoolean("isLecture", false);
 
-                                        String date = "";
-                                        for (ScheduleResponse schedule : empInfo.getScheduleList()) {
-                                            Schedule aSchedule = new Schedule();
-                                            aSchedule.setCourse(schedule.getCourseName());
-                                            aSchedule.setStartTime(schedule.getStartTime());
-                                            aSchedule.setEndTime(schedule.getEndTime());
-                                            aSchedule.setLecture(schedule.getLecture());
-                                            aSchedule.setRoom(schedule.getRoom());
-                                            aSchedule.setSlot(schedule.getSlot());
-                                            aSchedule.setDate(schedule.getDate());
+                            if (isLecture) {
+                                serverAPI.getScheduleEmployeeInfo(obj).enqueue(new Callback<ScheduleUserInfo>() {
+                                    @Override
+                                    public void onResponse(Call<ScheduleUserInfo> call, Response<ScheduleUserInfo> response) {
+                                        ScheduleUserInfo empInfo = response.body();
+                                        if (empInfo != null && response.code() == 200) {
+                                            DatabaseManager.getInstance().deleteAllSchedules();
 
-                                            if (schedule.getDate().equals(date)) {
-                                                aSchedule.setIsFirstSlot("false");
-                                            } else {
-                                                date = schedule.getDate();
-                                                aSchedule.setIsFirstSlot("true");
+                                            String date = "";
+                                            for (ScheduleResponse schedule : empInfo.getScheduleList()) {
+                                                Schedule aSchedule = new Schedule();
+                                                aSchedule.setCourse(schedule.getCourseName());
+                                                aSchedule.setStartTime(schedule.getStartTime());
+                                                aSchedule.setEndTime(schedule.getEndTime());
+                                                aSchedule.setLecture(schedule.getLecture());
+                                                aSchedule.setRoom(schedule.getRoom());
+                                                aSchedule.setSlot(schedule.getSlot());
+                                                aSchedule.setDate(schedule.getDate());
+
+                                                if (schedule.getDate().equals(date)) {
+                                                    aSchedule.setIsFirstSlot("false");
+                                                } else {
+                                                    date = schedule.getDate();
+                                                    aSchedule.setIsFirstSlot("true");
+                                                }
+
+                                                aSchedule.setIsNew("false");
+
+                                                DatabaseManager.getInstance().addSchedule(aSchedule);
                                             }
 
-                                            aSchedule.setIsNew("false");
+                                            //set the items to your ItemAdapter
+                                            ((Toolbar) getActivity().findViewById(R.id.toolbar)).setTitle(R.string.week_schedule);
+                                            List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
+                                            resetAdapter(scheduleList, getResources().getString(R.string.week_schedule));
+                                            srlHistory.setRefreshing(false);
 
-                                            DatabaseManager.getInstance().addSchedule(aSchedule);
                                         }
+                                    }
 
-                                        //set the items to your ItemAdapter
-                                        List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
+                                    @Override
+                                    public void onFailure(Call<ScheduleUserInfo> call, Throwable t) {
 
-                                        fastAdapter.clear();
-                                        fastAdapter.add(normalizeList(scheduleList, "week", null));
-                                        fastAdapter.notifyAdapterDataSetChanged();
+                                        AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+                                        alertDialog.setTitle("Fetch data Failed");
+                                        alertDialog.setMessage("Connection error.");
+                                        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+                                                new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        dialog.dismiss();
+                                                    }
+                                                });
+                                        alertDialog.show();
                                         srlHistory.setRefreshing(false);
                                     }
-                                }
+                                });
+                            } else {
+                                JsonObject obj = parser.parse("{\"email\": \"" + userEmail.getEmail() + "\"}").getAsJsonObject();
 
-                                @Override
-                                public void onFailure(Call<ScheduleUserInfo> call, Throwable t) {
+                                serverAPI.getScheduleStudent(obj).enqueue(new Callback<ScheduleUserInfo>() {
+                                    @Override
+                                    public void onResponse(Call<ScheduleUserInfo> call, Response<ScheduleUserInfo> response) {
+                                        ScheduleUserInfo empInfo = response.body();
+                                        if (empInfo != null && response.code() == 200) {
+                                            DatabaseManager.getInstance().deleteAllSchedules();
 
-                                    AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
-                                    alertDialog.setTitle("Fetch data Failed");
-                                    alertDialog.setMessage("Connection error.");
-                                    alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
-                                            new DialogInterface.OnClickListener() {
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    dialog.dismiss();
+                                            String date = "";
+                                            for (ScheduleResponse schedule : empInfo.getScheduleList()) {
+                                                Schedule aSchedule = new Schedule();
+                                                aSchedule.setCourse(schedule.getCourseName());
+                                                aSchedule.setStartTime(schedule.getStartTime());
+                                                aSchedule.setEndTime(schedule.getEndTime());
+                                                aSchedule.setLecture(schedule.getLecture());
+                                                aSchedule.setRoom(schedule.getRoom());
+                                                aSchedule.setSlot(schedule.getSlot());
+                                                aSchedule.setDate(schedule.getDate());
+
+                                                if (schedule.getDate().equals(date)) {
+                                                    aSchedule.setIsFirstSlot("false");
+                                                } else {
+                                                    date = schedule.getDate();
+                                                    aSchedule.setIsFirstSlot("true");
                                                 }
-                                            });
-                                    alertDialog.show();
-                                    srlHistory.setRefreshing(false);
-                                }
-                            });
+
+                                                aSchedule.setIsNew("false");
+
+                                                DatabaseManager.getInstance().addSchedule(aSchedule);
+                                            }
+
+                                            //set the items to your ItemAdapter
+                                            ((Toolbar) getActivity().findViewById(R.id.toolbar)).setTitle(R.string.week_schedule);
+                                            List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
+                                            resetAdapter(scheduleList, getResources().getString(R.string.week_schedule));
+                                            srlHistory.setRefreshing(false);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<ScheduleUserInfo> call, Throwable t) {
+
+                                        AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+                                        alertDialog.setTitle("Fetch data Failed");
+                                        alertDialog.setMessage("Connection error.");
+                                        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+                                                new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        dialog.dismiss();
+                                                    }
+                                                });
+                                        alertDialog.show();
+                                        srlHistory.setRefreshing(false);
+                                    }
+                                });
+                            }
+
+
                         }
                     }
                 }, 2000);
@@ -216,13 +311,10 @@ public class ScheduleFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 try {
-                    List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
-                    List<Schedule> todayList = normalizeList(scheduleList, "today",null);
                     ((Toolbar) getActivity().findViewById(R.id.toolbar)).setTitle(R.string.today_schedule);
 
-                    fastAdapter.clear();
-                    fastAdapter.add(todayList);
-                    fastAdapter.notifyAdapterDataSetChanged();
+                    List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
+                    resetAdapter(scheduleList, getResources().getString(R.string.today_schedule));
                     srlHistory.setRefreshing(false);
                     materialSheetFab.hideSheet();
                 } catch (Exception e) {
@@ -236,13 +328,10 @@ public class ScheduleFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 try {
-                    List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
-                    List<Schedule> todayList = normalizeList(scheduleList, "week",null);
                     ((Toolbar) getActivity().findViewById(R.id.toolbar)).setTitle(R.string.week_schedule);
 
-                    fastAdapter.clear();
-                    fastAdapter.add(todayList);
-                    fastAdapter.notifyAdapterDataSetChanged();
+                    List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
+                    resetAdapter(scheduleList, getResources().getString(R.string.week_schedule));
                     srlHistory.setRefreshing(false);
                     materialSheetFab.hideSheet();
                 } catch (Exception e) {
@@ -256,13 +345,10 @@ public class ScheduleFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 try {
-                    List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
-                    List<Schedule> todayList = normalizeList(scheduleList, "all",null);
                     ((Toolbar) getActivity().findViewById(R.id.toolbar)).setTitle(R.string.all_schedule);
 
-                    fastAdapter.clear();
-                    fastAdapter.add(todayList);
-                    fastAdapter.notifyAdapterDataSetChanged();
+                    List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
+                    resetAdapter(scheduleList, getResources().getString(R.string.all_schedule));
                     srlHistory.setRefreshing(false);
                     materialSheetFab.hideSheet();
                 } catch (Exception e) {
@@ -276,23 +362,20 @@ public class ScheduleFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 try {
-
-
                     DatePickerDialog.OnDateSetListener mDateSetListener =
                             (view1, year, monthOfYear, dayOfMonth) -> {
                                 Calendar c = Calendar.getInstance();
                                 c.set(year, monthOfYear, dayOfMonth, 0, 0);
-                                List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
-                                List<Schedule> todayList = normalizeList(scheduleList, "specific", c.getTime());
-                                ((Toolbar) getActivity().findViewById(R.id.toolbar)).setTitle(R.string.specific_date);
 
-                                fastAdapter.clear();
-                                fastAdapter.add(todayList);
-                                fastAdapter.notifyAdapterDataSetChanged();
+                                DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+                                ((Toolbar) getActivity().findViewById(R.id.toolbar)).setTitle(df.format(c.getTime()));
+
+                                List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
+                                resetAdapter(scheduleList, df.format(c.getTime()));
+
                                 srlHistory.setRefreshing(false);
                                 materialSheetFab.hideSheet();
 
-                                Toast.makeText(getContext(), year + " " + monthOfYear + " " + dayOfMonth, Toast.LENGTH_SHORT).show();
                             };
 
                     final Calendar c = Calendar.getInstance();
@@ -311,7 +394,7 @@ public class ScheduleFragment extends Fragment {
         return rootView;
     }
 
-    private List<Schedule> normalizeList(List<Schedule> scheduleList, String type, Date specificDate) {
+    private List<Schedule> normalizeList(List<Schedule> scheduleList, String type, String specificDate) {
         List<Schedule> aList = new ArrayList<>();
 
         try {
@@ -339,7 +422,7 @@ public class ScheduleFragment extends Fragment {
 
             if (type.equals("specific") && specificDate != null) {
                 for (Schedule schedule : scheduleList) {
-                    if (schedule.getDate().equals(df.format(specificDate))) {
+                    if (schedule.getDate().equals(specificDate)) {
                         aList.add(schedule);
                     }
                 }
@@ -391,6 +474,7 @@ public class ScheduleFragment extends Fragment {
         try {
             String newScheduleJson = getActivity().getIntent().getStringExtra("newSchedule");
 
+            //convert json
             if (newScheduleJson != null && !newScheduleJson.equals("")) {
                 Gson gson = new Gson();
                 Type scheduleType = new TypeToken<List<ScheduleResponse>>() {
@@ -477,7 +561,7 @@ public class ScheduleFragment extends Fragment {
                 Toolbar toolbar = getActivity().findViewById(R.id.toolbar);
 
                 if (hasNew == -1) {
-                    fastAdapter.add(normalizeList(updatedScheduleList, "week",null));
+                    fastAdapter.add(normalizeList(updatedScheduleList, "week", null));
                     toolbar.setTitle(R.string.week_schedule);
 
                 } else {

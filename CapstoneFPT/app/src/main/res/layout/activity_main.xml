@@ -116,7 +116,6 @@
                         android:drawableStart="@drawable/ic_view_week"
                         android:text="@string/week_schedule" />
 
-
                     <!-- Change to all view -->
                     <TextView
                         android:id="@+id/tvAll"
@@ -128,10 +127,9 @@
                     <TextView
                         android:id="@+id/tvPickDay"
                         style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
-                        android:drawableStart="@drawable/ic_view_all"
+                        android:drawableStart="@drawable/ic_view_day"
                         android:text="@string/pick_a_day" />
                 </LinearLayout>
-
 
 
             </android.support.v7.widget.CardView>

@@ -219,7 +219,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
                     serverAPI.getScheduleEmployeeInfo(obj).enqueue(new Callback<ScheduleUserInfo>() {
                         @Override
                         public void onResponse(Call<ScheduleUserInfo> call, Response<ScheduleUserInfo> response) {
-//                            ScheduleUserInfo empInfo = response.body();
+                            ScheduleUserInfo empInfo = response.body();
 //                            if (empInfo != null && response.code() == 200) {
 //                                DatabaseManager.getInstance().deleteAllSchedules();
 //
@@ -277,7 +277,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
 //                                alertDialog.show();
 //
 //                            }
-                            handleSuccessResponse(response);
+                            handleSuccessResponse(response,true);
                         }
 
                         @Override
@@ -301,13 +301,12 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
                 }
 
                 if (type.equals("student")) {
-                    Toast.makeText(getBaseContext(), "student", Toast.LENGTH_SHORT).show();
                     obj = parser.parse("{\"email\": \"" + acct.getEmail() + "\"}").getAsJsonObject();
 
                     serverAPI.getScheduleStudent(obj).enqueue(new Callback<ScheduleUserInfo>() {
                         @Override
                         public void onResponse(Call<ScheduleUserInfo> call, Response<ScheduleUserInfo> response) {
-//                            ScheduleUserInfo empInfo = response.body();
+                            ScheduleUserInfo empInfo = response.body();
 //                            if (empInfo != null && response.code() == 200) {
 //                                DatabaseManager.getInstance().deleteAllSchedules();
 //
@@ -341,7 +340,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
 //                                userInfo.setName(empInfo.getEmp().getFullName());
 //                                userInfo.setRole(empInfo.getEmp().getPosition());
 //
-//                                Utils.setUserInfo(userInfo, getApplication(), true);
+//                                Utils.setUserInfo(userInfo, getApplication(), false);
 //
 //                                hideProgressDialog();
 //
@@ -365,7 +364,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
 //                                alertDialog.show();
 //
 //                            }
-                            handleSuccessResponse(response);
+                            handleSuccessResponse(response, false);
                         }
 
                         @Override
@@ -396,7 +395,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
     }
     // [END handleSignInResult]
 
-    private void handleSuccessResponse(Response<ScheduleUserInfo> response) {
+    private void handleSuccessResponse(Response<ScheduleUserInfo> response, boolean isLecture) {
         ScheduleUserInfo empInfo = response.body();
         if (empInfo != null && response.code() == 200) {
             DatabaseManager.getInstance().deleteAllSchedules();
@@ -431,7 +430,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
             userInfo.setName(empInfo.getEmp().getFullName());
             userInfo.setRole(empInfo.getEmp().getPosition());
 
-            Utils.setUserInfo(userInfo, getApplication(), true);
+            Utils.setUserInfo(userInfo, getApplication(), isLecture);
 
             hideProgressDialog();
 

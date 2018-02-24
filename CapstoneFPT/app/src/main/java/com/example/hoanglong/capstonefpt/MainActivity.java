@@ -80,6 +80,10 @@ public class MainActivity extends AppCompatActivity {
         Gson gson = new Gson();
         final EmailInfo account = gson.fromJson(userEmailJson, EmailInfo.class);
 
+
+        Intent intent = new Intent(this, BackgroundService.class);
+        startService(intent);
+
         FirebaseMessaging.getInstance().subscribeToTopic(account.getEmail().substring(0,account.getEmail().indexOf("@")));
 
         setSupportActionBar(toolbar);
