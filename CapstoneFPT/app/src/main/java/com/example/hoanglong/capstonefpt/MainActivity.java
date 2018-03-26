@@ -137,6 +137,8 @@ public class MainActivity extends AppCompatActivity {
 
         //Create item for drawer
         PrimaryDrawerItem home = new PrimaryDrawerItem().withIdentifier(0).withName("Schedule").withIcon(R.drawable.ic_home_black);
+        PrimaryDrawerItem setting = new PrimaryDrawerItem().withIdentifier(1).withName("Setting").withIcon(R.drawable.ic_settings_black);
+
         SecondaryDrawerItem logout = new SecondaryDrawerItem().withIdentifier(5).withName("Logout").withIcon(R.drawable.ic_power);
 
         IProfile profile;
@@ -167,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
                 .withActionBarDrawerToggle(true)
                 .withActionBarDrawerToggleAnimated(true)
                 .addDrawerItems(home,
+                        setting,
                         new DividerDrawerItem(),
                         logout)
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
@@ -180,7 +183,13 @@ public class MainActivity extends AppCompatActivity {
                                 toolbar.setTitle(getString(R.string.week_schedule));
                             }
                             break;
-                            case 3: {
+                            case 2: {
+                                result.closeDrawer();
+                                Intent intent = new Intent(getBaseContext(), SettingActivity.class);
+                                startActivity(intent);
+                            }
+                            break;
+                            case 4: {
                                 FirebaseMessaging.getInstance().unsubscribeFromTopic(account.getEmail().substring(0,account.getEmail().indexOf("@")));
 
                                 Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(

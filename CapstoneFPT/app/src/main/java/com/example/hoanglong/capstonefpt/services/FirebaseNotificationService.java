@@ -1,7 +1,6 @@
 package com.example.hoanglong.capstonefpt.services;
 
 import com.example.hoanglong.capstonefpt.POJOs.APIresponses.ScheduleResponse;
-import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -16,12 +15,11 @@ import static com.example.hoanglong.capstonefpt.utils.Utils.sendNotificationForF
  * Created by hoanglong on 08-Feb-17.
  */
 
-public class MyFirebaseMessagingService extends FirebaseMessagingService {
+public class FirebaseNotificationService extends com.google.firebase.messaging.FirebaseMessagingService {
     private static final String TAG = "FCM Service";
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        // TODO: Handle FCM messages here.
         // If the application is in the foreground handle both data and notification messages here.
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated.

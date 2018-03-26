@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.hoanglong.capstonefpt.SettingActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:minHeight="?attr/actionBarSize"
+            android:padding="5dp"
+            android:popupTheme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            android:theme="@style/Toolbar"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:title="@string/app_name">
+
+        </android.support.v7.widget.Toolbar>
+
+    </android.support.design.widget.AppBarLayout>
+
+
+    <LinearLayout
+        android:layout_below="@id/appBar"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="10">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Background scan:"
+            android:textColor="@color/md_black_1000"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"/>
+
+        <Spinner
+            android:id="@+id/background_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="9"
+            android:entries="@array/time_arrays"
+            android:prompt="@string/time_prompt"/>
+    </LinearLayout>
+
+
+</RelativeLayout>

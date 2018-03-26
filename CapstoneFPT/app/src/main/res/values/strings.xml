@@ -13,4 +13,14 @@
     <string name="pick_a_day">Pick a day</string>
     <string name="specific_date">Specific date</string>
 
+    <string name="time_prompt">Choose time interval</string>
+    <string-array name="time_arrays">
+        <item>30 seconds</item>
+        <item>30 minutes</item>
+        <item>45 minutes</item>
+        <item>60 minutes</item>
+        <item>90 minutes</item>
+        <item>120 minutes</item>
+    </string-array>
+
 </resources>

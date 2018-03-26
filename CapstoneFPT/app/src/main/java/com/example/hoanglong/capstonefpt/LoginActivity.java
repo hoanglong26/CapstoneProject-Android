@@ -9,8 +9,11 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -98,6 +101,48 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
             tvRelative.setTypeface(custom_font);
             tvTitle.setTypeface(custom_font2);
         }
+
+        ImageView logo = findViewById(R.id.fpt_icon);
+        logo.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
+                alertDialog.setTitle("Set IP");
+
+                // Set up the input
+                final EditText input = new EditText(getBaseContext());
+                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                input.setTextColor(getResources().getColor(R.color.md_black_1000));
+                alertDialog.setView(input);
+                Toast.makeText(getBaseContext(), RetrofitUtils.url, Toast.LENGTH_SHORT).show();
+
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                SharedPreferences sharedPref = getApplication().getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                String ipString = input.getText().toString();
+                                editor.putString("ip_config", ipString );
+                                RetrofitUtils.url = ipString;
+                                Toast.makeText(getBaseContext(), RetrofitUtils.url, Toast.LENGTH_SHORT).show();
+                                serverAPI = RetrofitUtils.get().create(ServerAPI.class);
+                                dialog.dismiss();
+
+
+                            }
+                        });
+
+                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel",
+                        new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        alertDialog.cancel();
+                    }
+                });
+                alertDialog.show();
+            }
+        });
 
         // Button listeners
         findViewById(R.id.sign_in_button).setOnClickListener(this);
@@ -207,7 +252,10 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
                 SharedPreferences.Editor editor = sharedPref.edit();
                 Gson gson2 = new Gson();
                 String jsonAccount = gson2.toJson(account);
+                //default scan time is 30 mins
+                editor.putInt("background_scan", 30);
                 editor.putString(getString(R.string.user_email_account), jsonAccount);
+
                 editor.apply();
 
                 JsonParser parser = new JsonParser();
@@ -219,65 +267,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
                     serverAPI.getScheduleEmployeeInfo(obj).enqueue(new Callback<ScheduleUserInfo>() {
                         @Override
                         public void onResponse(Call<ScheduleUserInfo> call, Response<ScheduleUserInfo> response) {
-                            ScheduleUserInfo empInfo = response.body();
-//                            if (empInfo != null && response.code() == 200) {
-//                                DatabaseManager.getInstance().deleteAllSchedules();
-//
-//                                String date = "";
-//                                for (ScheduleResponse schedule : empInfo.getScheduleList()) {
-//                                    Schedule aSchedule = new Schedule();
-//                                    aSchedule.setCourse(schedule.getCourseName());
-//                                    aSchedule.setStartTime(schedule.getStartTime());
-//                                    aSchedule.setEndTime(schedule.getEndTime());
-//                                    aSchedule.setLecture(schedule.getLecture());
-//                                    aSchedule.setRoom(schedule.getRoom());
-//                                    aSchedule.setSlot(schedule.getSlot());
-//                                    aSchedule.setDate(schedule.getDate());
-//
-//                                    if (schedule.getDate().equals(date)) {
-//                                        aSchedule.setIsFirstSlot("false");
-//                                    } else {
-//                                        date = schedule.getDate();
-//                                        aSchedule.setIsFirstSlot("true");
-//                                    }
-//
-//                                    aSchedule.setIsNew("false");
-//
-//                                    DatabaseManager.getInstance().addSchedule(aSchedule);
-//                                }
-//
-//
-//                                UserInfo userInfo = new UserInfo();
-//                                userInfo.setCode(empInfo.getEmp().getCode());
-//                                userInfo.setId(empInfo.getEmp().getId());
-//                                userInfo.setName(empInfo.getEmp().getFullName());
-//                                userInfo.setRole(empInfo.getEmp().getPosition());
-//
-//                                Utils.setUserInfo(userInfo, getApplication(), true);
-//
-//                                hideProgressDialog();
-//
-//                                Intent intent = new Intent(getBaseContext(), MainActivity.class);
-//                                startActivity(intent);
-//                                finish();
-//                            } else {
-//                                Utils.clearUserInfo(getApplication());
-//                                signOut();
-//
-//                                AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
-//                                alertDialog.setTitle("Login Failed");
-//                                alertDialog.setMessage("This function can only be used by FPT account.");
-//                                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
-//                                        new DialogInterface.OnClickListener() {
-//                                            public void onClick(DialogInterface dialog, int which) {
-//                                                dialog.dismiss();
-//                                            }
-//                                        });
-//                                hideProgressDialog();
-//                                alertDialog.show();
-//
-//                            }
-                            handleSuccessResponse(response,true);
+                            handleSuccessResponse(response, true);
                         }
 
                         @Override
@@ -294,8 +284,9 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
                                             dialog.dismiss();
                                         }
                                     });
-                            hideProgressDialog();
                             alertDialog.show();
+                            hideProgressDialog();
+
                         }
                     });
                 }
@@ -306,71 +297,12 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
                     serverAPI.getScheduleStudent(obj).enqueue(new Callback<ScheduleUserInfo>() {
                         @Override
                         public void onResponse(Call<ScheduleUserInfo> call, Response<ScheduleUserInfo> response) {
-                            ScheduleUserInfo empInfo = response.body();
-//                            if (empInfo != null && response.code() == 200) {
-//                                DatabaseManager.getInstance().deleteAllSchedules();
-//
-//                                String date = "";
-//                                for (ScheduleResponse schedule : empInfo.getScheduleList()) {
-//                                    Schedule aSchedule = new Schedule();
-//                                    aSchedule.setCourse(schedule.getCourseName());
-//                                    aSchedule.setStartTime(schedule.getStartTime());
-//                                    aSchedule.setEndTime(schedule.getEndTime());
-//                                    aSchedule.setLecture(schedule.getLecture());
-//                                    aSchedule.setRoom(schedule.getRoom());
-//                                    aSchedule.setSlot(schedule.getSlot());
-//                                    aSchedule.setDate(schedule.getDate());
-//
-//                                    if (schedule.getDate().equals(date)) {
-//                                        aSchedule.setIsFirstSlot("false");
-//                                    } else {
-//                                        date = schedule.getDate();
-//                                        aSchedule.setIsFirstSlot("true");
-//                                    }
-//
-//                                    aSchedule.setIsNew("false");
-//
-//                                    DatabaseManager.getInstance().addSchedule(aSchedule);
-//                                }
-//
-//
-//                                UserInfo userInfo = new UserInfo();
-//                                userInfo.setCode(empInfo.getEmp().getCode());
-//                                userInfo.setId(empInfo.getEmp().getId());
-//                                userInfo.setName(empInfo.getEmp().getFullName());
-//                                userInfo.setRole(empInfo.getEmp().getPosition());
-//
-//                                Utils.setUserInfo(userInfo, getApplication(), false);
-//
-//                                hideProgressDialog();
-//
-//                                Intent intent = new Intent(getBaseContext(), MainActivity.class);
-//                                startActivity(intent);
-//                                finish();
-//                            } else {
-//                                Utils.clearUserInfo(getApplication());
-//                                signOut();
-//
-//                                AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
-//                                alertDialog.setTitle("Login Failed");
-//                                alertDialog.setMessage("This function can only be used by FPT account.");
-//                                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
-//                                        new DialogInterface.OnClickListener() {
-//                                            public void onClick(DialogInterface dialog, int which) {
-//                                                dialog.dismiss();
-//                                            }
-//                                        });
-//                                hideProgressDialog();
-//                                alertDialog.show();
-//
-//                            }
                             handleSuccessResponse(response, false);
                         }
 
                         @Override
                         public void onFailure(Call<ScheduleUserInfo> call, Throwable t) {
-                            Utils.clearUserInfo(getApplication());
-                            signOut();
+
 
                             AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
                             alertDialog.setTitle("Login Failed");
@@ -379,6 +311,8 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
                                             dialog.dismiss();
+                                            Utils.clearUserInfo(getApplication());
+                                            signOut();
                                         }
                                     });
                             hideProgressDialog();
@@ -438,8 +372,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
             startActivity(intent);
             finish();
         } else {
-            Utils.clearUserInfo(getApplication());
-            signOut();
+
 
             AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
             alertDialog.setTitle("Login Failed");
@@ -448,10 +381,13 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
+                            Utils.clearUserInfo(getApplication());
+                            signOut();
                         }
                     });
-            hideProgressDialog();
             alertDialog.show();
+            hideProgressDialog();
+
 
         }
     }

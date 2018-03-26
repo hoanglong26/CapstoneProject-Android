@@ -51,7 +51,6 @@ public class BackgroundService extends Service {
     @Override
     public void onCreate() {
         mHandler = new Handler();
-        serverAPI = RetrofitUtils.get().create(ServerAPI.class);
     }
 
     @Override
@@ -66,11 +65,17 @@ public class BackgroundService extends Service {
         return START_STICKY;
     }
 
+    public void runBackground(){
+        mStatusChecker.run();
+    }
 
     Runnable mStatusChecker = new Runnable() {
         @Override
         public void run() {
+
             try{
+                serverAPI = RetrofitUtils.get().create(ServerAPI.class);
+
                 DatabaseManager.init(getBaseContext());
                 SharedPreferences sharedPref = getApplication().getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
                 String userEmailJson = sharedPref.getString(getString(R.string.user_email_account), "");
@@ -170,6 +175,25 @@ public class BackgroundService extends Service {
                 }
             }catch(Exception e){
 //                Toast.makeText(getBaseContext(), "all failed",Toast.LENGTH_SHORT).show();
+
+            }
+
+            SharedPreferences sharedPref = getApplication().getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
+            int timeInterval = sharedPref.getInt("background_scan", 30);
+            int timeIntervalChoice = 30;
+            if(timeInterval == 0){
+                timeIntervalChoice = 0;
+            }else{
+                timeIntervalChoice = timeInterval;
+            }
+
+            switch (timeIntervalChoice) {
+                case 0:
+                    mInterval = 30000;
+                    break;
+                default:
+                    mInterval = timeIntervalChoice * 60 * 1000;
+                    break;
 
             }
 

@@ -1,6 +1,8 @@
 package com.example.hoanglong.capstonefpt.fragments;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -68,10 +70,11 @@ public class ScheduleFragment extends Fragment {
 
     private Handler mHandler;
     //refresh time of screen
-    private int mInterval = 90000;
+    private int mInterval = 30000;
 
     FastItemAdapter<Schedule> fastAdapter = new FastItemAdapter<>();
 
+    Activity mActivity = null;
 
     public ScheduleFragment() {
         // Required empty public constructor
@@ -84,19 +87,53 @@ public class ScheduleFragment extends Fragment {
         return fragment;
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof Activity) {
+            mActivity = (Activity) context;
+        }
+
+    }
+
     Runnable mStatusChecker = new Runnable() {
         @Override
         public void run() {
             try {
-                //set the items to your ItemAdapter
-                List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
-                String title = ((Toolbar) getActivity().findViewById(R.id.toolbar)).getTitle().toString();
-                resetAdapter(scheduleList, title);
+                if (mActivity != null) {
+                    List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
+                    String title = ((Toolbar) mActivity.findViewById(R.id.toolbar)).getTitle().toString();
+                    resetAdapter(scheduleList, title);
+
+                    SharedPreferences sharedPref = mActivity.getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
+                    int timeInterval = sharedPref.getInt("background_scan", 30);
+                    int timeIntervalChoice = 30;
+                    if (timeInterval == 0) {
+                        timeIntervalChoice = 0;
+                    } else {
+                        timeIntervalChoice = timeInterval;
+                    }
+
+                    switch (timeIntervalChoice) {
+                        case 0:
+                            mInterval = 30000;
+                            break;
+                        default:
+                            mInterval = timeIntervalChoice * 60 * 1000;
+                            break;
+                    }
+
+                    mHandler.postDelayed(mStatusChecker, mInterval + 10000);
+
+                }
+
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            mHandler.postDelayed(mStatusChecker, mInterval);
+
         }
     };
 
@@ -222,6 +259,19 @@ public class ScheduleFragment extends Fragment {
                                             resetAdapter(scheduleList, getResources().getString(R.string.week_schedule));
                                             srlHistory.setRefreshing(false);
 
+                                        }else {
+                                            srlHistory.setRefreshing(false);
+
+                                            AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+                                            alertDialog.setTitle("Fetch data Failed");
+                                            alertDialog.setMessage("Something went wrong. Please try again later");
+                                            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+                                                    new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                            dialog.dismiss();
+                                                        }
+                                                    });
+                                            alertDialog.show();
                                         }
                                     }
 
@@ -279,11 +329,25 @@ public class ScheduleFragment extends Fragment {
                                             List<Schedule> scheduleList = DatabaseManager.getInstance().getAllSchedules();
                                             resetAdapter(scheduleList, getResources().getString(R.string.week_schedule));
                                             srlHistory.setRefreshing(false);
+                                        }else{
+                                            srlHistory.setRefreshing(false);
+
+                                            AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+                                            alertDialog.setTitle("Fetch data Failed");
+                                            alertDialog.setMessage("Something went wrong. Please try again later");
+                                            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+                                                    new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                            dialog.dismiss();
+                                                        }
+                                                    });
+                                            alertDialog.show();
                                         }
                                     }
 
                                     @Override
                                     public void onFailure(Call<ScheduleUserInfo> call, Throwable t) {
+                                        srlHistory.setRefreshing(false);
 
                                         AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
                                         alertDialog.setTitle("Fetch data Failed");
@@ -295,7 +359,6 @@ public class ScheduleFragment extends Fragment {
                                                     }
                                                 });
                                         alertDialog.show();
-                                        srlHistory.setRefreshing(false);
                                     }
                                 });
                             }
