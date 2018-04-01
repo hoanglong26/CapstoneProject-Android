@@ -38,8 +38,6 @@ public class SettingActivity extends AppCompatActivity {
         SharedPreferences sharedPref = getApplication().getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
         int timeInterval = sharedPref.getInt("background_scan", 30);
 
-        Toast.makeText(getBaseContext(), timeInterval + "", Toast.LENGTH_SHORT).show();
-
         int timeIntervalChoice = 30;
         if (timeInterval == 0) {
             timeIntervalChoice = 0;
@@ -74,22 +72,22 @@ public class SettingActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = sharedPref.edit();
                 switch (parent.getItemAtPosition(pos).toString()) {
                     case "30 seconds":
-                        editor.putFloat("background_scan", 0);
+                        editor.putInt("background_scan", 0);
                         break;
                     case "30 minutes":
-                        editor.putFloat("background_scan", 30);
+                        editor.putInt("background_scan", 30);
                         break;
                     case "45 minutes":
-                        editor.putFloat("background_scan", 45);
+                        editor.putInt("background_scan", 45);
                         break;
                     case "60 minutes":
-                        editor.putFloat("background_scan", 60);
+                        editor.putInt("background_scan", 60);
                         break;
                     case "90 minutes":
-                        editor.putFloat("background_scan", 90);
+                        editor.putInt("background_scan", 90);
                         break;
                     case "120 minutes":
-                        editor.putFloat("background_scan", 120);
+                        editor.putInt("background_scan", 120);
                         break;
 
                 }

@@ -121,10 +121,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
                 alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                SharedPreferences sharedPref = getApplication().getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
-                                SharedPreferences.Editor editor = sharedPref.edit();
                                 String ipString = input.getText().toString();
-                                editor.putString("ip_config", ipString );
                                 RetrofitUtils.url = ipString;
                                 Toast.makeText(getBaseContext(), RetrofitUtils.url, Toast.LENGTH_SHORT).show();
                                 serverAPI = RetrofitUtils.get().create(ServerAPI.class);
@@ -292,9 +289,10 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
                 }
 
                 if (type.equals("student")) {
-                    obj = parser.parse("{\"email\": \"" + acct.getEmail() + "\"}").getAsJsonObject();
-
-                    serverAPI.getScheduleStudent(obj).enqueue(new Callback<ScheduleUserInfo>() {
+//                    obj = parser.parse("{\"email\": \"" + acct.getEmail() + "\"}").getAsJsonObject();
+                    String testMail2 = "longphse62094@fpt.edu.vn";
+                    JsonObject obj2 = parser.parse("{\"email\": \"" + testMail2 + "\"}").getAsJsonObject();
+                    serverAPI.getScheduleStudent(obj2).enqueue(new Callback<ScheduleUserInfo>() {
                         @Override
                         public void onResponse(Call<ScheduleUserInfo> call, Response<ScheduleUserInfo> response) {
                             handleSuccessResponse(response, false);

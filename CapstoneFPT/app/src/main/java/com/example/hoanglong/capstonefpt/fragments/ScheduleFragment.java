@@ -292,7 +292,9 @@ public class ScheduleFragment extends Fragment {
                                     }
                                 });
                             } else {
-                                JsonObject obj = parser.parse("{\"email\": \"" + userEmail.getEmail() + "\"}").getAsJsonObject();
+                                String testMail = "longphse62094@fpt.edu.vn";
+                                final JsonObject obj = parser.parse("{\"email\": \"" + testMail + "\"}").getAsJsonObject();
+//                                JsonObject obj = parser.parse("{\"email\": \"" + userEmail.getEmail() + "\"}").getAsJsonObject();
 
                                 serverAPI.getScheduleStudent(obj).enqueue(new Callback<ScheduleUserInfo>() {
                                     @Override

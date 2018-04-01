@@ -6,10 +6,11 @@
         android:icon="@drawable/ic_assignment"
         android:title="@string/schedule" />
 
-    <item
-        android:id="@+id/navigation_about"
-        android:icon="@drawable/ic_account_circle"
-        android:title="@string/account" />
+    <!--<item-->
+        <!--android:id="@+id/navigation_about"-->
+        <!--android:icon="@drawable/ic_account_circle"-->
+        <!--android:title="@string/account"-->
+        <!--/>-->
 
 
 </menu>

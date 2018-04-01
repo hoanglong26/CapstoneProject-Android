@@ -130,8 +130,9 @@ public class BackgroundService extends Service {
                         }
                     });
                 } else {
-                    JsonObject obj2 = parser.parse("{\"email\": \"" + userEmail.getEmail() + "\"}").getAsJsonObject();
-
+//                    JsonObject obj2 = parser.parse("{\"email\": \"" + userEmail.getEmail() + "\"}").getAsJsonObject();
+                    String testMail2 = "longphse62094@fpt.edu.vn";
+                    final JsonObject obj2 = parser.parse("{\"email\": \"" + testMail2 + "\"}").getAsJsonObject();
                     serverAPI.getScheduleStudent(obj2).enqueue(new Callback<ScheduleUserInfo>() {
                         @Override
                         public void onResponse(Call<ScheduleUserInfo> call, Response<ScheduleUserInfo> response) {

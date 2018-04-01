@@ -113,10 +113,10 @@ public class MainActivity extends AppCompatActivity {
                         toolbar.setTitle(R.string.week_schedule);
 
                         return true;
-                    case R.id.navigation_about:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, adapterViewPager.getItem(1)).commit();
-                        toolbar.setTitle(R.string.week_schedule);
-                        return true;
+//                    case R.id.navigation_about:
+//                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, adapterViewPager.getItem(1)).commit();
+//                        toolbar.setTitle(R.string.week_schedule);
+//                        return true;
                 }
                 return false;
             }
