@@ -28,25 +28,6 @@ public class FirebaseIDService extends FirebaseInstanceIdService {
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
         Log.d(TAG, "Refreshed token: " + refreshedToken);
 
-//        sendNotification(getBaseContext(), refreshedToken);
-
-//        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-//        SharedPreferences.Editor editor = sharedPref.edit();
-//        editor.putString("deviceToken-WeTrack", refreshedToken);
-//        editor.commit();
-
-//        serverAPI.sendToken().enqueue(new Callback<JsonObject>() {
-//            @Override
-//            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-//
-//            }
-//
-//            @Override
-//            public void onFailure(Call<JsonObject> call, Throwable t) {
-//
-//            }
-//        });
-
         // TODO: Implement this method to send any registration to your app's servers.
         sendRegistrationToServer(refreshedToken);
     }

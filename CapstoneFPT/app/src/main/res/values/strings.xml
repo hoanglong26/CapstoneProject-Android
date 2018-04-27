@@ -14,6 +14,7 @@
     <string name="specific_date">Specific date</string>
 
     <string name="time_prompt">Choose time interval</string>
+    <string name="choose_date_range">Choose date range</string>
     <string-array name="time_arrays">
         <item>30 seconds</item>
         <item>30 minutes</item>

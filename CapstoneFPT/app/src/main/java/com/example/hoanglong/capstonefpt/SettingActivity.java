@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.example.hoanglong.capstonefpt.utils.Utils;
 
@@ -30,78 +29,84 @@ public class SettingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setting);
 
         ButterKnife.bind(this);
-        toolbar.setTitle("Setting");
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
 
-        SharedPreferences sharedPref = getApplication().getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
-        int timeInterval = sharedPref.getInt("background_scan", 30);
+        try {
+            toolbar.setTitle("Setting");
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
 
-        int timeIntervalChoice = 30;
-        if (timeInterval == 0) {
-            timeIntervalChoice = 0;
-        }else {
-            timeIntervalChoice = timeInterval;
-        }
-        switch (timeIntervalChoice) {
-            case 0:
-                spinner.setSelection(0);
-                break;
-            case 30:
-                spinner.setSelection(1);
-                break;
-            case 45:
-                spinner.setSelection(2);
-                break;
-            case 60:
-                spinner.setSelection(3);
-                break;
-            case 90:
-                spinner.setSelection(4);
-                break;
-            case 120:
-                spinner.setSelection(5);
-                break;
-        }
+            SharedPreferences sharedPref = getApplication().getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
+            int timeInterval = sharedPref.getInt("background_scan", 30);
 
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int pos, long l) {
+            int timeIntervalChoice = 30;
+            if (timeInterval == 0) {
+                timeIntervalChoice = 0;
+            } else {
+                timeIntervalChoice = timeInterval;
+            }
+            switch (timeIntervalChoice) {
+                case 0:
+                    spinner.setSelection(0);
+                    break;
+                case 30:
+                    spinner.setSelection(1);
+                    break;
+                case 45:
+                    spinner.setSelection(2);
+                    break;
+                case 60:
+                    spinner.setSelection(3);
+                    break;
+                case 90:
+                    spinner.setSelection(4);
+                    break;
+                case 120:
+                    spinner.setSelection(5);
+                    break;
+            }
 
-                SharedPreferences.Editor editor = sharedPref.edit();
-                switch (parent.getItemAtPosition(pos).toString()) {
-                    case "30 seconds":
-                        editor.putInt("background_scan", 0);
-                        break;
-                    case "30 minutes":
-                        editor.putInt("background_scan", 30);
-                        break;
-                    case "45 minutes":
-                        editor.putInt("background_scan", 45);
-                        break;
-                    case "60 minutes":
-                        editor.putInt("background_scan", 60);
-                        break;
-                    case "90 minutes":
-                        editor.putInt("background_scan", 90);
-                        break;
-                    case "120 minutes":
-                        editor.putInt("background_scan", 120);
-                        break;
+            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int pos, long l) {
+
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    switch (parent.getItemAtPosition(pos).toString()) {
+                        case "30 seconds":
+                            editor.putInt("background_scan", 0);
+                            break;
+                        case "30 minutes":
+                            editor.putInt("background_scan", 30);
+                            break;
+                        case "45 minutes":
+                            editor.putInt("background_scan", 45);
+                            break;
+                        case "60 minutes":
+                            editor.putInt("background_scan", 60);
+                            break;
+                        case "90 minutes":
+                            editor.putInt("background_scan", 90);
+                            break;
+                        case "120 minutes":
+                            editor.putInt("background_scan", 120);
+                            break;
+
+                    }
+                    editor.commit();
+
+                    Intent intent = new Intent(getBaseContext(), BackgroundService.class);
+                    startService(intent);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
 
                 }
-                editor.commit();
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-                Intent intent = new Intent(getBaseContext(), BackgroundService.class);
-                startService(intent);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
     }
 
     @Override

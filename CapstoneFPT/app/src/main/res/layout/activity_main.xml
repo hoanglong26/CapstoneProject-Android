@@ -129,6 +129,14 @@
                         style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
                         android:drawableStart="@drawable/ic_view_day"
                         android:text="@string/pick_a_day" />
+
+                    <!-- Change to pick date range view -->
+                    <TextView
+                        android:id="@+id/tvPickDateRange"
+                        style="@style/TextAppearance.MaterialSheetFab.Sheet.Item"
+                        android:drawableStart="@drawable/ic_date_range"
+                        android:text="@string/choose_date_range" />
+
                 </LinearLayout>
 
 

@@ -42,26 +42,31 @@ public class LoadingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_loading);
-        ButterKnife.bind(this);
+        try{
+            setContentView(R.layout.activity_loading);
+            ButterKnife.bind(this);
 
-        Window window = this.getWindow();
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.setStatusBarColor(ContextCompat.getColor(this, R.color.md_grey_100));
+            Window window = this.getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.setStatusBarColor(ContextCompat.getColor(this, R.color.md_grey_100));
 
 
-        Typeface custom_font = Typeface.createFromAsset(getAssets(),  "fonts/homestead.TTF");
+            Typeface custom_font = Typeface.createFromAsset(getAssets(),  "fonts/homestead.TTF");
 
-        appName.setTypeface(custom_font);
+            appName.setTypeface(custom_font);
 
-        animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.from_bottom);
-        appName.startAnimation(animation);
+            animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.from_bottom);
+            appName.startAnimation(animation);
 
-        animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.from_top);
-        ivLoading.startAnimation(animation);
+            animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.from_top);
+            ivLoading.startAnimation(animation);
 
-        mHandler.sendEmptyMessageDelayed(1, 3500);
+            mHandler.sendEmptyMessageDelayed(1, 3500);
+        }catch(Exception e){
+
+        }
+
     }
 }
 

@@ -1,15 +1,11 @@
 package com.example.hoanglong.capstonefpt;
 
 import android.app.Service;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
-import android.widget.Toast;
 
 import com.example.hoanglong.capstonefpt.POJOs.APIresponses.ScheduleResponse;
 import com.example.hoanglong.capstonefpt.POJOs.APIresponses.ScheduleUserInfo;
@@ -22,8 +18,6 @@ import com.example.hoanglong.capstonefpt.utils.Utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -65,15 +59,14 @@ public class BackgroundService extends Service {
         return START_STICKY;
     }
 
-    public void runBackground(){
+    public void runBackground() {
         mStatusChecker.run();
     }
 
     Runnable mStatusChecker = new Runnable() {
         @Override
         public void run() {
-
-            try{
+            try {
                 serverAPI = RetrofitUtils.get().create(ServerAPI.class);
 
                 DatabaseManager.init(getBaseContext());
@@ -174,31 +167,30 @@ public class BackgroundService extends Service {
                         }
                     });
                 }
-            }catch(Exception e){
-//                Toast.makeText(getBaseContext(), "all failed",Toast.LENGTH_SHORT).show();
 
+                int timeInterval = sharedPref.getInt("background_scan", 30);
+                int timeIntervalChoice = 30;
+                if (timeInterval == 0) {
+                    timeIntervalChoice = 0;
+                } else {
+                    timeIntervalChoice = timeInterval;
+                }
+
+                switch (timeIntervalChoice) {
+                    case 0:
+                        mInterval = 30000;
+                        break;
+                    default:
+                        mInterval = timeIntervalChoice * 60 * 1000;
+                        break;
+
+                }
+
+                mHandler.postDelayed(mStatusChecker, mInterval);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
-            SharedPreferences sharedPref = getApplication().getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
-            int timeInterval = sharedPref.getInt("background_scan", 30);
-            int timeIntervalChoice = 30;
-            if(timeInterval == 0){
-                timeIntervalChoice = 0;
-            }else{
-                timeIntervalChoice = timeInterval;
-            }
-
-            switch (timeIntervalChoice) {
-                case 0:
-                    mInterval = 30000;
-                    break;
-                default:
-                    mInterval = timeIntervalChoice * 60 * 1000;
-                    break;
-
-            }
-
-            mHandler.postDelayed(mStatusChecker, mInterval);
         }
     };
 }

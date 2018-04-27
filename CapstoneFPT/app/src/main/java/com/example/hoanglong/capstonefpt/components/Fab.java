@@ -48,31 +48,36 @@ public class Fab extends FloatingActionButton implements AnimatedFab {
      */
     @Override
     public void show(float translationX, float translationY) {
-        // Set FAB's translation
-        setTranslation(translationX, translationY);
+        try {
+            // Set FAB's translation
+            setTranslation(translationX, translationY);
 
-        // Only use scale animation if FAB is hidden
-        if (getVisibility() != View.VISIBLE) {
-            // Pivots indicate where the animation begins from
-            float pivotX = getPivotX() + translationX;
-            float pivotY = getPivotY() + translationY;
+            // Only use scale animation if FAB is hidden
+            if (getVisibility() != View.VISIBLE) {
+                // Pivots indicate where the animation begins from
+                float pivotX = getPivotX() + translationX;
+                float pivotY = getPivotY() + translationY;
 
-            ScaleAnimation anim;
-            // If pivots are 0, that means the FAB hasn't been drawn yet so just use the
-            // center of the FAB
-            if (pivotX == 0 || pivotY == 0) {
-                anim = new ScaleAnimation(0, 1, 0, 1, Animation.RELATIVE_TO_SELF, 0.5f,
-                        Animation.RELATIVE_TO_SELF, 0.5f);
-            } else {
-                anim = new ScaleAnimation(0, 1, 0, 1, pivotX, pivotY);
+                ScaleAnimation anim;
+                // If pivots are 0, that means the FAB hasn't been drawn yet so just use the
+                // center of the FAB
+                if (pivotX == 0 || pivotY == 0) {
+                    anim = new ScaleAnimation(0, 1, 0, 1, Animation.RELATIVE_TO_SELF, 0.5f,
+                            Animation.RELATIVE_TO_SELF, 0.5f);
+                } else {
+                    anim = new ScaleAnimation(0, 1, 0, 1, pivotX, pivotY);
+                }
+
+                // Animate FAB expanding
+                anim.setDuration(FAB_ANIM_DURATION);
+                anim.setInterpolator(getInterpolator());
+                startAnimation(anim);
             }
-
-            // Animate FAB expanding
-            anim.setDuration(FAB_ANIM_DURATION);
-            anim.setInterpolator(getInterpolator());
-            startAnimation(anim);
+            setVisibility(View.VISIBLE);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        setVisibility(View.VISIBLE);
+
     }
 
     /**
@@ -80,19 +85,24 @@ public class Fab extends FloatingActionButton implements AnimatedFab {
      */
     @Override
     public void hide() {
-        // Only use scale animation if FAB is visible
-        if (getVisibility() == View.VISIBLE) {
-            // Pivots indicate where the animation begins from
-            float pivotX = getPivotX() + getTranslationX();
-            float pivotY = getPivotY() + getTranslationY();
+        try {
+            // Only use scale animation if FAB is visible
+            if (getVisibility() == View.VISIBLE) {
+                // Pivots indicate where the animation begins from
+                float pivotX = getPivotX() + getTranslationX();
+                float pivotY = getPivotY() + getTranslationY();
 
-            // Animate FAB shrinking
-            ScaleAnimation anim = new ScaleAnimation(1, 0, 1, 0, pivotX, pivotY);
-            anim.setDuration(FAB_ANIM_DURATION);
-            anim.setInterpolator(getInterpolator());
-            startAnimation(anim);
+                // Animate FAB shrinking
+                ScaleAnimation anim = new ScaleAnimation(1, 0, 1, 0, pivotX, pivotY);
+                anim.setDuration(FAB_ANIM_DURATION);
+                anim.setInterpolator(getInterpolator());
+                startAnimation(anim);
+            }
+            setVisibility(View.INVISIBLE);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        setVisibility(View.INVISIBLE);
+
     }
 
     private void setTranslation(float translationX, float translationY) {
