@@ -121,7 +121,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.O
                     alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
-                                    String ipString = input.getText().toString();
+                                    String ipString = "http://"+input.getText().toString();
                                     RetrofitUtils.url = ipString;
                                     Toast.makeText(getBaseContext(), RetrofitUtils.url, Toast.LENGTH_SHORT).show();
                                     serverAPI = RetrofitUtils.get().create(ServerAPI.class);
