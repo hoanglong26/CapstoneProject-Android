@@ -176,6 +176,9 @@ public class ScheduleFragment extends Fragment {
             fastAdapter.clear();
             fastAdapter.add(normalizeList);
             fastAdapter.notifyAdapterDataSetChanged();
+            if (title.equals("daterange")) {
+                title = "Date Range";
+            }
             ((Toolbar) getActivity().findViewById(R.id.toolbar)).setTitle(title);
         } catch (Exception e) {
             e.printStackTrace();
@@ -196,6 +199,7 @@ public class ScheduleFragment extends Fragment {
 
         try {
             serverAPI = RetrofitUtils.get().create(ServerAPI.class);
+
             DatabaseManager.init(getActivity().getBaseContext());
 
             mHandler = new Handler();
@@ -632,7 +636,7 @@ public class ScheduleFragment extends Fragment {
         List<Schedule> scheduleList = new ArrayList<>();
         try {
             String newScheduleJson = getActivity().getIntent().getStringExtra("newSchedule");
-
+            String type = getActivity().getIntent().getStringExtra("type");
             //convert json
             if (newScheduleJson != null && !newScheduleJson.equals("")) {
                 Gson gson = new Gson();
@@ -647,22 +651,57 @@ public class ScheduleFragment extends Fragment {
                     schedule.setLecture(lecture);
                 }
 
-                for (ScheduleResponse scheduleResponse : newScheduleList) {
-                    Schedule aSchedule = new Schedule();
-                    aSchedule.setIsNew("true");
-                    aSchedule.setIsFirstSlot("false");
-                    aSchedule.setDate(scheduleResponse.getDate());
-                    aSchedule.setSlot(scheduleResponse.getSlot());
-                    aSchedule.setRoom(scheduleResponse.getRoom());
-                    aSchedule.setLecture(scheduleResponse.getLecture());
-                    aSchedule.setStartTime(scheduleResponse.getStartTime());
-                    aSchedule.setEndTime(scheduleResponse.getEndTime());
-                    aSchedule.setCourse(scheduleResponse.getCourseName());
-                    scheduleList.add(aSchedule);
+                if (type.equals("create")) {
+                    for (ScheduleResponse scheduleResponse : newScheduleList) {
+                        Schedule aSchedule = new Schedule();
+                        aSchedule.setIsNew("true");
+                        aSchedule.setIsFirstSlot("false");
+                        aSchedule.setDate(scheduleResponse.getDate());
+                        aSchedule.setSlot(scheduleResponse.getSlot());
+                        aSchedule.setRoom(scheduleResponse.getRoom());
+                        aSchedule.setLecture(scheduleResponse.getLecture());
+                        aSchedule.setStartTime(scheduleResponse.getStartTime());
+                        aSchedule.setEndTime(scheduleResponse.getEndTime());
+                        aSchedule.setCourse(scheduleResponse.getCourseName());
+                        scheduleList.add(aSchedule);
 
-                    DatabaseManager.getInstance().deleteScheduleByDateAndSlot(aSchedule);
-                    DatabaseManager.getInstance().createOrUpdateSchedule(aSchedule);
+                        DatabaseManager.getInstance().deleteScheduleByDateAndSlot(aSchedule);
+                        DatabaseManager.getInstance().createOrUpdateSchedule(aSchedule);
+                    }
                 }
+                if (type.equals("edit")) {
+                    if (newScheduleList.size() == 2) {
+                        ScheduleResponse oldScheduleResponse = newScheduleList.get(0);
+                        Schedule aSchedule = new Schedule();
+                        aSchedule.setIsNew("true");
+                        aSchedule.setIsFirstSlot("false");
+                        aSchedule.setDate(oldScheduleResponse.getDate());
+                        aSchedule.setSlot(oldScheduleResponse.getSlot());
+                        aSchedule.setRoom(oldScheduleResponse.getRoom());
+                        aSchedule.setLecture(oldScheduleResponse.getLecture());
+                        aSchedule.setStartTime(oldScheduleResponse.getStartTime());
+                        aSchedule.setEndTime(oldScheduleResponse.getEndTime());
+                        aSchedule.setCourse(oldScheduleResponse.getCourseName());
+
+                        DatabaseManager.getInstance().deleteScheduleByDateAndSlot(aSchedule);
+
+                        ScheduleResponse newScheduleResponse = newScheduleList.get(1);
+                        Schedule aSchedule2 = new Schedule();
+                        aSchedule2.setIsNew("true");
+                        aSchedule2.setIsFirstSlot("false");
+                        aSchedule2.setDate(newScheduleResponse.getDate());
+                        aSchedule2.setSlot(newScheduleResponse.getSlot());
+                        aSchedule2.setRoom(newScheduleResponse.getRoom());
+                        aSchedule2.setLecture(newScheduleResponse.getLecture());
+                        aSchedule2.setStartTime(newScheduleResponse.getStartTime());
+                        aSchedule2.setEndTime(newScheduleResponse.getEndTime());
+                        aSchedule2.setCourse(newScheduleResponse.getCourseName());
+
+                        DatabaseManager.getInstance().createOrUpdateSchedule(aSchedule2);
+
+                    }
+                }
+
 
                 List<Schedule> updatedScheduleList = DatabaseManager.getInstance().getAllSchedules();
 

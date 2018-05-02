@@ -214,7 +214,7 @@ public class Utils {
     }
 
     static int x = 999;
-    public static void sendNotificationForFireBase(Context context, String msg, String newScheduleJson) {
+    public static void sendNotificationForFireBase(Context context, String msg, String newScheduleJson, String type) {
 
         SharedPreferences sharedPref = context.getSharedPreferences(Utils.SharedPreferencesTag, Utils.SharedPreferences_ModeTag);
         String userEmailJson = sharedPref.getString(context.getString(R.string.user_email_account), "");
@@ -235,6 +235,7 @@ public class Utils {
             TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
             Intent intent = new Intent(context, MainActivity.class);
             intent.putExtra("newSchedule", newScheduleJson);
+            intent.putExtra("type", type);
             stackBuilder.addNextIntent(intent);
             PendingIntent resultPendingIntent =
                     stackBuilder.getPendingIntent(

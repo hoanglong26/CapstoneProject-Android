@@ -10,11 +10,11 @@
     <string name="week_schedule">Week Schedule</string>
     <string name="today_schedule">Today Schedule</string>
     <string name="user_email_account">user_email_account</string>
-    <string name="pick_a_day">Pick a day</string>
+    <string name="pick_a_day">Specific date</string>
     <string name="specific_date">Specific date</string>
 
     <string name="time_prompt">Choose time interval</string>
-    <string name="choose_date_range">Choose date range</string>
+    <string name="choose_date_range">Date range</string>
     <string-array name="time_arrays">
         <item>30 seconds</item>
         <item>30 minutes</item>

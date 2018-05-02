@@ -1,5 +1,6 @@
 package com.example.hoanglong.capstonefpt;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -7,12 +8,18 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.hoanglong.capstonefpt.POJOs.EmailInfo;
+import com.example.hoanglong.capstonefpt.api.RetrofitUtils;
+import com.example.hoanglong.capstonefpt.api.ServerAPI;
 import com.example.hoanglong.capstonefpt.components.Fab;
 import com.example.hoanglong.capstonefpt.fragments.FragmentAdapter;
 import com.example.hoanglong.capstonefpt.fragments.ScheduleFragment;
@@ -176,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
                         public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                             switch (position) {
                                 case 1: {
+
                                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, ScheduleFragment.newInstance("Schedule")).commit();
                                     result.closeDrawer();
                                     navigation.setSelectedItemId(R.id.navigation_history);
@@ -222,7 +230,41 @@ public class MainActivity extends AppCompatActivity {
             materialSheetFab = new MaterialSheetFab<>(fab, sheetView, overlay,
                     sheetColor, fabColor);
 
+            toolbar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                    alertDialog.setTitle("Set IP");
 
+                    // Set up the input
+                    final EditText input = new EditText(getBaseContext());
+                    // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                    input.setInputType(InputType.TYPE_CLASS_TEXT);
+                    input.setTextColor(getResources().getColor(R.color.md_black_1000));
+                    alertDialog.setView(input);
+                    Toast.makeText(getBaseContext(), RetrofitUtils.url, Toast.LENGTH_SHORT).show();
+
+                    alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    String ipString = "http://"+input.getText().toString();
+                                    RetrofitUtils.url = ipString;
+                                    Toast.makeText(getBaseContext(), RetrofitUtils.url, Toast.LENGTH_SHORT).show();
+                                    dialog.dismiss();
+
+
+                                }
+                            });
+
+                    alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    alertDialog.cancel();
+                                }
+                            });
+                    alertDialog.show();
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }

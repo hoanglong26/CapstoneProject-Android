@@ -35,21 +35,26 @@ public class FirebaseNotificationService extends com.google.firebase.messaging.F
 
                 List<ScheduleResponse> newScheduleForCreate = new ArrayList<>();
 
+
                 for (ScheduleResponse schedule : newScheduleList) {
                     List<ScheduleResponse> newSchedule = new ArrayList<>();
                     newSchedule.add(schedule);
 
                     newScheduleForCreate.add(schedule);
 
-                    if (type.equals("edit")) {
-                        String msg = "Your schedule on day " + schedule.getDate() + ", " + schedule.getSlot() + " has been changed.";
-                        sendNotificationForFireBase(getBaseContext(), msg, gson.toJson(newSchedule));
-                    }
+//                    if (type.equals("edit")) {
+//                        String msg = "Your schedule on day " + schedule.getDate() + ", " + schedule.getSlot() + " has been changed.";
+//                        sendNotificationForFireBase(getBaseContext(), msg, gson.toJson(newSchedule), type);
+//                    }
                 }
 
                 if (type.equals("create")) {
                     String msg = "Your subject " + newScheduleForCreate.get(0).getCourseName() + " has new schedules.";
-                    sendNotificationForFireBase(getBaseContext(), msg, gson.toJson(newScheduleForCreate));
+                    sendNotificationForFireBase(getBaseContext(), msg, gson.toJson(newScheduleForCreate),type);
+                }else{
+                    String msg = "Your schedule on day " + newScheduleList.get(0).getDate() + ", " + newScheduleList.get(0).getSlot() + " has been changed.";
+                    sendNotificationForFireBase(getBaseContext(), msg, gson.toJson(newScheduleForCreate),type);
+
                 }
 
 
